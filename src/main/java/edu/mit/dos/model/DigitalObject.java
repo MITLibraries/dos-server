@@ -1,14 +1,14 @@
 package edu.mit.dos.model;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
 
 /**
  * Representation of a digital object
  */
+
+@Entity
+@Table(name = "digital_object")
 public class DigitalObject {
 
     @Id
