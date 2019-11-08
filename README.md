@@ -19,23 +19,25 @@ Building and Running the Artifact from Source
 
 ```sh
 
-# from the folder, run the build, and package it:
+# From the sourcecode folder, run maven for the build:
 
 mvn clean verify
 
-# To run integration tests:
+# (Optional) To run the integration tests:
 
 mvn clean verify -P failsafe
 
-# after building, you can run it live by simply running:
+# Or, to run a single test:
+
+mvn surefire:test -Dtest=edu.mit.dos.handle.HandleServiceTest#testGet
+
+# After building ("BUILD SUCCESS"), you can run the artifact using the java launcher:
 
 java -jar target/dos-server-1.0-SNAPSHOT.war
 
 ```
 
-This will start an embedded Tomcat on port 8080.
-
-You can now test the REST API:
+This will start an embedded Tomcat on port 8080. You can now test the REST API:
 
 ```sh
 curl -XGET http://localhost:8080/handle?objectId=344
@@ -66,16 +68,11 @@ docker run -p 8080:8080 dos:1.0
 
 Configuration for Deployments
 -------------------------------
-Note: Currently, the artifact is manually deployed. This will change.
+Note: For now the artifact will be manually deployed. 
 
-Adjust application.properties to:
+1. Adjust application.properties to pass any required parameters. 
 
-- point to the correct share directory on the server.
-- change testing to false
-
-
-Build using Maven and copy the result .war file to the Tomcat instance.
-
+2. Build using Maven and copy the result .war file to the Tomcat instance.
 
 ```sh
 
@@ -83,49 +80,34 @@ Build using Maven and copy the result .war file to the Tomcat instance.
 
 mvn clean package -P dev
 
-# scp target/att-0.0.1-SNAPSHOT.war user@server:/usr/share/tomcat/webapps
+# copy the file to the server, replacing username, server information, and the path to tomcat webapps folder
+
+scp target/dos-server-1.0-SNAPSHOT.war username@server:/path/to/tomcat
 
 ```
 
-Replace user, server, and tomcat webapp locations, as appropriate.
-
-Tomcat should load the web app after a few moments. Browse to the webapp (specified below)
-to confirm the application is working.
+Tomcat should load the web app after a few moments. 
 
 To debug, you can tail the following files:
 
 ``` sh
-tail -f /usr/share/tomcat/tmp/dos-logs/debug.log
-sudo tail -f /usr/share/tomcat/logs/localhost.yyyy-mm-dd.log
+tail -f /path/to/tomcat/tmp/dos-logs/debug.log
+sudo tail -f /path/to/tomcat/logs/localhost.yyyy-mm-dd.log
 ```
 
-Change Tomcat location, as necessary.
 
-The application logs folder can be changed in application.properties.
-
-Unit Tests
------------
-
-To run a *single* test:
-
-```sh 
-mvn surefire:test -Dtest=edu.mit.dos.handle.HandleServiceTest#testGet
-
-```
-
-Production Server
----------------------
+Deployments 
+-----------------------
 
 TBD
 
 
-Authors
+Support
+-------------------
+
+If you encounter an issue, please file a bug on GitHub (or MIT's JIRA website).
+
+Contributors
 -------------
 
-Osman Din and Eric Hanson. 
-
-If you encounter an issue, please file a bug on GitHub (or MIT's JIRA website, 
-if you are an internal user).
-
-
-
+Osman Din & Eric Hanson. 
