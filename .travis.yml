@@ -1,6 +1,5 @@
 language: java
 script:
   - mvn clean verify -Pfailsafe
-  - mvn test -Pfailsafe jacoco:report
 jdk:
   - openjdk8
