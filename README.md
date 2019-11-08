@@ -1,6 +1,6 @@
 # DOS Service
 
-[![Build Status](https://travis-ci.org/osmandin/att.svg?branch=master)](https://travis-ci.org/osmandin/att)
+[![Build Status](https://travis-ci.org/MITLibraries/dos-core.svg?branch=master)](https://travis-ci.org/MITLibraries/dos-core)
 
 Service
 -----------------------
