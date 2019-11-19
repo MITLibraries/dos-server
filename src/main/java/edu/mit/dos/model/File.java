@@ -8,6 +8,8 @@ import javax.persistence.Id;
 /**
  * Representation of a file object
  */
+ @Entity
+ @Table(name = "file")
 public class File {
 
     @Id
