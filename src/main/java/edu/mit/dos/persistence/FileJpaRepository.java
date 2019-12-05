@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface FileJpaRepository extends JpaRepository<File, Integer> {
 
-    File findByOid(int oid);
+    File findByOid(long oid);
 
 }

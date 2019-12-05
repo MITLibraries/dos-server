@@ -1,15 +1,12 @@
 package edu.mit.dos.model;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 /**
  * Representation of a file object
  */
- @Entity
- @Table(name = "file")
+@Entity
+@Table(name = "file")
 public class File {
 
     @Id

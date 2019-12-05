@@ -23,12 +23,13 @@ public class FileIT {
 
     @Test
     public void testGetChecksum() {
-        File file = new File();
-        file.setOid(100);
+        final File file = new File();
+        //file.setOid(100);
         file.setChecksum("abcd1234");
-        entityManager.persist(file);
+        File f = entityManager.persist(file);
         entityManager.flush();
-        File file1= fileJpaRepository.findByOid(100);
+
+        File file1= fileJpaRepository.findByOid(f.getOid());
         assertThat(file.getChecksum().equalsIgnoreCase(file1.getChecksum()));
     }
 }
