@@ -1,7 +1,7 @@
 package edu.mit.dos.model;
 
 public final class ContentSystems{
-  public static final String Dome = "c1";
-  public static final String DSpace = "c2";
-  public static final String DIPOnline = "c3";
+  public static final String DOME = "c1";
+  public static final String DSPACE = "c2";
+  public static final String DIPONLINE = "c3";
 }
