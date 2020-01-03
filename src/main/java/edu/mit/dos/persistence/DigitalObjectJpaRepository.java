@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface DigitalObjectJpaRepository extends JpaRepository<DigitalObject, Integer> {
 
-    DigitalObject findByOid(int oid);
+    DigitalObject findByOid(long oid);
 
     DigitalObject findByHandle(String handle);
 
