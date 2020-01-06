@@ -1,5 +1,6 @@
 package edu.mit.dos.object;
 
+import edu.mit.dos.model.DigitalObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +27,16 @@ public class ObjectServiceIT {
 
     @Test
     public void testGet() {
-        String body = this.restTemplate.getForObject("/object?oid=22", String.class);
-        assertThat(body).isEqualTo("ok");
+        MultiValueMap<String, String> map= new LinkedMultiValueMap<>();
+        map.add("handle", "hdl.net");
+        map.add("metadata_system", "dome");
+        map.add("source_system", "archivesspace");
+        map.add("uris", "https://dome.mit.edu/bitstream/handle/1721.3/176391/249794_cp.jpg?sequence=1");
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, new HttpHeaders());
+        String body = this.restTemplate.postForObject("/object",  request,String.class);
+        assertThat(body).isNotNull();
+        DigitalObject body2 = this.restTemplate.getForObject("/object?oid="+body, DigitalObject.class);
+        assertThat(body2.getHandle()).isEqualTo("hdl.net");
     }
 
     @Test
@@ -37,10 +46,11 @@ public class ObjectServiceIT {
         map.add("metadata_system", "dome");
         map.add("source_system", "archivesspace");
         map.add("uris", "https://dome.mit.edu/bitstream/handle/1721.3/176391/249794_cp.jpg?sequence=1");
-        map.add("title", "Tomb of Sitta Zubayda");
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, new HttpHeaders());
         String body = this.restTemplate.postForObject("/object",  request,String.class);
-        assertThat(body).isEqualTo("ok");
+        assertThat(body).isNotNull();
+        DigitalObject body2 = this.restTemplate.getForObject("/object?oid="+body, DigitalObject.class);
+        assertThat(body2.getHandle()).isEqualTo("hdl.net");
     }
 
 

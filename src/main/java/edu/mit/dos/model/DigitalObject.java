@@ -83,6 +83,7 @@ public class DigitalObject {
         this.metadataSourceUrl = metadataSourceUrl;
     }
 
+
     @Override
     public String toString() {
         return "DigitalObject{" +

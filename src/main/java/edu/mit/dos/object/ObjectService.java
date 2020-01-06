@@ -26,7 +26,6 @@ public class ObjectService {
     @RequestMapping(value = "/object", method = RequestMethod.POST)
     public String create(@RequestParam("handle") String handle,
                          @RequestParam("uris") List<String> fileUris,
-                         @RequestParam("title") String title,
                          @RequestParam("source_system") String sourceSystem,
                          @RequestParam("metadata_system") String metadataSystem) {
 
@@ -62,14 +61,19 @@ public class ObjectService {
 
         logger.debug("Persisted:{}", persistedObjected.getOid());
 
-        return "ok";
+        return String.valueOf(persistedObjected.getOid());
     }
 
 
     @RequestMapping(value = "/object", method = RequestMethod.GET)
     public @ResponseBody
-    String getObject(@RequestParam("oid") String objectId) {
-        return "ok";
+    DigitalObject getObject(@RequestParam("oid") String oid) {
+        final DigitalObject retrievedDigitalObject = objectJpaRepository.findByOid(Long.valueOf(oid));
+        if (retrievedDigitalObject == null){
+            logger.debug("Error - digital object not found:{}", oid);
+        }
+        logger.debug(retrievedDigitalObject.toString());
+        return retrievedDigitalObject;
     }
 
     public static File createTempDirectory()
