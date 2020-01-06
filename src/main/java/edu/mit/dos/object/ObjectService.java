@@ -69,9 +69,14 @@ public class ObjectService {
     @RequestMapping(value = "/object", method = RequestMethod.GET)
     public @ResponseBody
     String getObject(@RequestParam("oid") long oid) {
-        final DigitalObject digitalObject = objectJpaRepository.findByOid(oid);
+//        final DigitalObject retrievedDigitalObject = new DigitalObject();
+        if (objectJpaRepository == null)
+        {logger.debug("ojr = null");}
 
-        logger.debug(digitalObject.toString());
+        final DigitalObject retrievedDigitalObject = objectJpaRepository.findByOid(oid);
+        if (retrievedDigitalObject == null)
+        {logger.debug("rdo = null");}
+        logger.debug(retrievedDigitalObject.toString());
 
         return "ok";
     }

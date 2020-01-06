@@ -29,5 +29,7 @@ public class DigitalObjectIT {
         entityManager.flush();
         DigitalObject digitalObject1= digitalObjectJpaRepository.findByHandle("https://hdl.net");
         assertThat(digitalObject.getHandle().equalsIgnoreCase(digitalObject1.getHandle()));
+        DigitalObject digitalObject2= digitalObjectJpaRepository.findByOid(234);
+        assertThat(digitalObject2.getHandle().equalsIgnoreCase(digitalObject1.getHandle()));
     }
 }
