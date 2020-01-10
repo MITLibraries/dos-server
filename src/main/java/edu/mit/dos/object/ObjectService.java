@@ -25,6 +25,7 @@ public class ObjectService {
 
     @RequestMapping(value = "/object", method = RequestMethod.POST)
     public String create(@RequestParam("handle") String handle,
+                         @RequestParam("title") String title,
                          @RequestParam("uris") List<String> fileUris,
                          @RequestParam("source_system") String sourceSystem,
                          @RequestParam("metadata_system") String metadataSystem) {
@@ -53,9 +54,10 @@ public class ObjectService {
 
         final DigitalObject digitalObject = new DigitalObject();
         digitalObject.setHandle(handle);
+        digitalObject.setTitle(title);
         digitalObject.setUpdateDate(new Date());
         digitalObject.setMetadataSource(metadataSystem);
-        digitalObject.setMetadataSourceUrl(sourceSystem);
+        digitalObject.setSourceSystem(sourceSystem);
 
         final DigitalObject persistedObjected = objectJpaRepository.save(digitalObject);
 

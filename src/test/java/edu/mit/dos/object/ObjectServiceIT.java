@@ -29,6 +29,7 @@ public class ObjectServiceIT {
     public void testGet() {
         MultiValueMap<String, String> map= new LinkedMultiValueMap<>();
         map.add("handle", "hdl.net");
+        map.add("title", "Item Title");
         map.add("metadata_system", "dome");
         map.add("source_system", "archivesspace");
         map.add("uris", "https://dome.mit.edu/bitstream/handle/1721.3/176391/249794_cp.jpg?sequence=1");
@@ -37,12 +38,14 @@ public class ObjectServiceIT {
         assertThat(body).isNotNull();
         DigitalObject body2 = this.restTemplate.getForObject("/object?oid="+body, DigitalObject.class);
         assertThat(body2.getHandle()).isEqualTo("hdl.net");
+        assertThat(body2.getTitle()).isEqualTo("Item Title");
     }
 
     @Test
     public void testPost() {
         MultiValueMap<String, String> map= new LinkedMultiValueMap<>();
         map.add("handle", "hdl.net");
+        map.add("title", "Item Title");
         map.add("metadata_system", "dome");
         map.add("source_system", "archivesspace");
         map.add("uris", "https://dome.mit.edu/bitstream/handle/1721.3/176391/249794_cp.jpg?sequence=1");
@@ -51,6 +54,7 @@ public class ObjectServiceIT {
         assertThat(body).isNotNull();
         DigitalObject body2 = this.restTemplate.getForObject("/object?oid="+body, DigitalObject.class);
         assertThat(body2.getHandle()).isEqualTo("hdl.net");
+        assertThat(body2.getTitle()).isEqualTo("Item Title");
     }
 
 
