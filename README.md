@@ -19,13 +19,17 @@ Building and Running the Artifact from Source
 
 ```sh
 
-# From the sourcecode folder, run maven for the build:
+# From the sourcecode folder, run Maven for the build (without integration tests):
 
 mvn clean verify
 
-# (Optional) To run the integration tests:
+# (Optional) To include and run the integration tests while building:
 
 mvn clean verify -P failsafe
+
+To run against S3:
+
+mvn clean install -P failsafe -DargLine="-Dstorage=s3"
 
 # Or, to run a single test:
 

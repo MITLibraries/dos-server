@@ -1,6 +1,6 @@
 package edu.mit.dos.persistence;
 
-import edu.mit.dos.model.File;
+import edu.mit.dos.model.DigitalFile;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +23,13 @@ public class FileIT {
 
     @Test
     public void testGetChecksum() {
-        final File file = new File();
+        final DigitalFile file = new DigitalFile();
         //file.setOid(100);
         file.setChecksum("abcd1234");
-        File f = entityManager.persist(file);
+        DigitalFile f = entityManager.persist(file);
         entityManager.flush();
 
-        File file1= fileJpaRepository.findByOid(f.getOid());
+        DigitalFile file1= fileJpaRepository.findByOid(f.getOid());
         assertThat(file.getChecksum().equalsIgnoreCase(file1.getChecksum()));
     }
 }
