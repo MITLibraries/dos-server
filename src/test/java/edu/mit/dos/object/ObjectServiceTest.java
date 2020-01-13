@@ -2,6 +2,8 @@ package edu.mit.dos.object;
 
 import edu.mit.dos.model.DigitalObject;
 import edu.mit.dos.persistence.DigitalObjectJpaRepository;
+import edu.mit.dos.storage.StorageInterfaceFactory;
+import edu.mit.dos.storage.S3Impl;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -12,6 +14,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.View;
 
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -32,6 +35,12 @@ public class ObjectServiceTest {
 
     @Mock
     private DigitalObjectJpaRepository objectJpaRepository;
+
+    @Mock
+    private StorageInterfaceFactory s3Manager;
+
+    @Mock
+    private S3Impl s3Impl;
 
     @Before
     public void setup(){
@@ -55,4 +64,15 @@ public class ObjectServiceTest {
     }
 
 
+    @Test
+    public void testDelete() throws Exception {
+        DigitalObject digitalObject = new DigitalObject();
+        digitalObject.setOid(1222);
+        when(s3Manager.getInstance()).thenReturn(s3Impl);
+        when(objectJpaRepository.findByOid(1222)).thenReturn(digitalObject);
+        mockMvc.perform(delete("/object").param("oid", "1222"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(""))
+                .andReturn();
+    }
 }

@@ -38,6 +38,16 @@ public class LocalFileSystemImpl implements StorageManager {
         return "";
     }
 
+    @Override
+    public void deleteObject(String key) {
+        try {
+            File f = new File(key);
+            f.delete();
+        } catch (Exception e) {
+            logger.error("Error deleting file", e);
+        }
+    }
+
     public static File createTempDirectory()
             throws IOException {
         final File temp;
