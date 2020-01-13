@@ -2,12 +2,12 @@
 
 ## Context
 
-An application is needed to discover errors that occur in real time.
+An application is needed for real time production error discovery and reporting. Sentry is currently being
+used by DLS for various applications.
 
 ## Decision
 
-In according with the engineering best practices document, we will use Sentry.
-
+We will use Sentry for application exception monitoring.
 
 ## Status
 
