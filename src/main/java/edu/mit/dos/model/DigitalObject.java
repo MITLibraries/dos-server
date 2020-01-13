@@ -16,6 +16,9 @@ public class DigitalObject {
     @Column(name = "ID")
     private long oid;
 
+    @Column(name = "title")
+    private String title;
+
     @Column(name = "handle")
     private String handle;
 
@@ -28,8 +31,8 @@ public class DigitalObject {
     @Column(name="metadata_system")
     private String metadataSource;
 
-    @Column(name="metadata_system_url")
-    private String metadataSourceUrl;
+    @Column(name="source_system")
+    private String sourceSystem;
 
     public DigitalObject() {
 
@@ -42,6 +45,12 @@ public class DigitalObject {
     public void setOid(long oid) {
         this.oid = oid;
     }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) { this.title = title; }
 
     public String getHandle() {
         return handle;
@@ -75,12 +84,12 @@ public class DigitalObject {
         this.metadataSource = metadataSource;
     }
 
-    public String getMetadataSourceUrl() {
-        return metadataSourceUrl;
+    public String getSourceSystem() {
+        return sourceSystem;
     }
 
-    public void setMetadataSourceUrl(String metadataSourceUrl) {
-        this.metadataSourceUrl = metadataSourceUrl;
+    public void setSourceSystem(String sourceSystem) {
+        this.sourceSystem = sourceSystem;
     }
 
 
@@ -88,11 +97,12 @@ public class DigitalObject {
     public String toString() {
         return "DigitalObject{" +
                 "oid=" + oid +
+                ", title='" + title + '\'' +
                 ", handle='" + handle + '\'' +
                 ", dateCreated=" + dateCreated +
                 ", updateDate=" + updateDate +
                 ", metadataSource='" + metadataSource + '\'' +
-                ", metadataSourceUrl='" + metadataSourceUrl + '\'' +
+                ", sourceSystem='" + sourceSystem + '\'' +
                 '}';
     }
 }
