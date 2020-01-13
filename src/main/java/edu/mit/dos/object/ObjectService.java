@@ -26,11 +26,11 @@ public class ObjectService {
     @RequestMapping(value = "/object", method = RequestMethod.POST)
     public String create(@RequestParam("handle") String handle,
                          @RequestParam("title") String title,
-                         @RequestParam("uris") List<String> fileUris,
+                         @RequestParam("target_links") List<String> targetLinks,
                          @RequestParam("source_system") String sourceSystem,
                          @RequestParam("metadata_system") String metadataSystem) {
 
-        for (final String s : fileUris) {
+        for (final String s : targetLinks) {
 
             int filesWritten = 0;
 
@@ -55,6 +55,7 @@ public class ObjectService {
         final DigitalObject digitalObject = new DigitalObject();
         digitalObject.setHandle(handle);
         digitalObject.setTitle(title);
+        digitalObject.setDateCreated(new Date());
         digitalObject.setUpdateDate(new Date());
         digitalObject.setMetadataSource(metadataSystem);
         digitalObject.setSourceSystem(sourceSystem);

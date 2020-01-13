@@ -32,7 +32,7 @@ public class ObjectServiceIT {
         map.add("title", "Item Title");
         map.add("metadata_system", "dome");
         map.add("source_system", "archivesspace");
-        map.add("uris", "https://dome.mit.edu/bitstream/handle/1721.3/176391/249794_cp.jpg?sequence=1");
+        map.add("target_links", "https://dome.mit.edu/bitstream/handle/1721.3/176391/249794_cp.jpg?sequence=1");
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, new HttpHeaders());
         String body = this.restTemplate.postForObject("/object",  request,String.class);
         assertThat(body).isNotNull();
@@ -48,7 +48,7 @@ public class ObjectServiceIT {
         map.add("title", "Item Title");
         map.add("metadata_system", "dome");
         map.add("source_system", "archivesspace");
-        map.add("uris", "https://dome.mit.edu/bitstream/handle/1721.3/176391/249794_cp.jpg?sequence=1");
+        map.add("target_links", "https://dome.mit.edu/bitstream/handle/1721.3/176391/249794_cp.jpg?sequence=1");
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, new HttpHeaders());
         String body = this.restTemplate.postForObject("/object",  request,String.class);
         assertThat(body).isNotNull();
