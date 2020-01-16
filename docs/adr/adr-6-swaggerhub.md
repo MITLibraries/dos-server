@@ -2,11 +2,11 @@
 
 ## Context
 
-We need a place to document the API. In future, functionality will likely be needed to manage access to this API.
+We need a tool to design and document the DOS API. Options include SwaggerHub, etc.
 
 ## Decision
 
-SwaggerHub will be used for documenting the API specification.
+SwaggerHub will be used to document the API specification.
 
 ## Status
 
@@ -14,5 +14,6 @@ Accepted
 
 ## Consequences
 
-In future, functionality will likely be needed to manage access to this API. Once the API management platform
-becomes available, the API will need to be moved to the tool.
+In future, functionality will likely be needed to manage access to this API and to facilitate 
+the API lifecycle. Once the API management software becomes available, DOS API will need to be ported
+to the new platform.
