@@ -3,11 +3,11 @@
 
 ## Context
 
-JDK requires a license from Oracle. An alternative is OpenJDK. 
+Oracle JDK requires a basic license. The main alternative is OpenJDK. 
 
 ## Decision
 
-We will use OpenJDK in our deployments.
+We will rely on OpenJDK in our production environment.
 
 ## Status
 
@@ -15,3 +15,4 @@ Accepted
 
 ## Consequences
 
+Less $ (perhaps) for Uncle Larry.

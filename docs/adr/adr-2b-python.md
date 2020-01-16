@@ -1,4 +1,4 @@
-# Software Stack
+# Software Stack (Python for Integrations and Ingests)
 
 ## Context
 
@@ -17,5 +17,4 @@ Accepted
 
 ## Consequences
 
-Python best practices should be used to ensure that our usage is consistent with local
-Python code style, etc.
+Python best practices should be used to ensure that the project code style and usage are consistent with local Python style guides and other best practices.

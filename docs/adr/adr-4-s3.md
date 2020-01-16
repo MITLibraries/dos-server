@@ -2,8 +2,7 @@
 
 ## Context
 
-Amazon Simple Storage Service (S3) is a robust, scalable, and cost-effective object storage solution. 
-It is already being used for various DLS projects and supported by the infrastructure team.
+DOS needs storage for digital object bitstreams (currently only PDFs and JPEGs). Amazon Simple Storage Service (S3) is a robust, scalable, and cost-effective object storage solution. S3 is already being used for various DLS projects and supported by the infrastructure team.
 
 ## Decision
 
@@ -15,6 +14,5 @@ Accepted
 
 ## Consequences
 
-We will likely need to coordinate resource planning with the infrastructure team
-as the number of digital files DOS needs to store in S3 is currently not known. (It may
-also be possible to "reuse S3" links, where feasible.)
+The DOS team will likely need to coordinate resource planning with the infrastructure team
+as the number of digital files DOS needs to store in S3 is currently unknown. Any relevant decisions should be documented.

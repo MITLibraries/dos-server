@@ -22,8 +22,8 @@ Accepted
 ## Consequences
 
 1. Whenever a new "discovery" or frontend interface is adopted by MIT Libraries (and a business decision
-has been made on the use handles), the handles stored by DOS will need to be updated to point to the new
+has been made on the use of handles), the handles stored by DOS will need to be updated to point to the new
 location.
 
-2. DOS will still need to ensure TODO
+2. DOS may need to ensure that links to digital objects are persistent. This requirement is a work in progress and will likely be addressed after the MVP development work. A separate ADR will be created to document the design decision once a decision on the requirement has been made.
 

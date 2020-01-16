@@ -1,4 +1,4 @@
-# Application Exception Monitoring and Error Tracking
+# Sentry for Application Exception Monitoring
 
 ## Context
 
@@ -14,3 +14,6 @@ We will use Sentry for application exception monitoring.
 Accepted
 
 ## Consequences
+
+Logging related configuration should be checked to ensure that Sentry is not bombarded with
+irrelevant stack traces for ingests, etc. 

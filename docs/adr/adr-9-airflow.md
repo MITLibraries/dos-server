@@ -2,7 +2,7 @@
 
 ## Context
 
-A tool is needed that can automatically run ingest scripts on a schedule and provide status updates on ingest operations.
+A tool is needed that can automatically run ingest scripts on a pre-defined schedule and provide status updates on ingest operations.
 
 ## Decision
 

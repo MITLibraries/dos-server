@@ -1,10 +1,9 @@
-# OpenAPI Specification
+# OpenAPI Specification for Documenting the API
 
 ## Context
 
 In accordance with our architecture principles (API first design), an API specification 
-is required to specify and share DOS API end points. OpenAPI is supported by most API tools
-and it is already being used to specify other DLS APIs.
+is required to specify and share information about DOS API end points. OpenAPI is supported by most API design tools and it is already being used to specify other DLS APIs.
 
 ## Decision
 
@@ -16,4 +15,4 @@ Accepted
 
 ## Consequences
 
-For additional use cases related to API management, an API platform that supports OpenAPI should be used.
+For additional use cases related to API management, an API platform that provides effective support for OpenAPI should be used.

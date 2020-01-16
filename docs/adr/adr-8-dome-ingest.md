@@ -2,8 +2,8 @@
 
 ## Context
 
-Some of the target collections currently live in Dome already and it is simpler
-to use Dome as the ingest source than downstream systems. Further, as Dome supports
+Some of the target collections are already present in Dome, and it is simpler
+to use Dome as the ingest source than upstream systems. Further, as Dome supports
 OAI-PMH and OAI-ORE, these interfaces could be used to retrieve  
 relevant information, such as the bitstreams of digital assets, directly from Dome. 
 
