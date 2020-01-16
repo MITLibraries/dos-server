@@ -14,4 +14,4 @@ Accepted
 
 ## Consequences
 
-The project team may need some training on setting up Airflow jobs.
+The project team may need some training on using Airflow for DOS ingests.
