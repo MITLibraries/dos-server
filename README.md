@@ -27,10 +27,6 @@ mvn clean verify
 
 mvn clean verify -P failsafe
 
-To run against S3:
-
-mvn clean install -P failsafe -DargLine="-Dstorage=s3"
-
 # Or, to run a single test:
 
 mvn surefire:test -Dtest=edu.mit.dos.handle.HandleServiceTest#testGet
@@ -44,7 +40,7 @@ java -jar target/dos-server-1.0-SNAPSHOT.war
 This will start an embedded Tomcat on port 8080. You can now test the REST API:
 
 ```sh
-curl -XGET http://localhost:8080/handle?objectId=344
+curl -XGET http://localhost:8080/object?oid=344
 
 ```
 
