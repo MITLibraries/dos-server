@@ -18,7 +18,7 @@ import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.DeleteObjectsResult;
 import com.amazonaws.services.s3.model.PutObjectResult;
 
-public class AWSS3ServiceIntegrationTest {
+public class S3Test {
 
     private static final String BUCKET_NAME = "bucket_name";
     private static final String KEY_NAME = "key_name";
@@ -26,17 +26,17 @@ public class AWSS3ServiceIntegrationTest {
     private static final String KEY_NAME2 = "key_name2";
 
     private AmazonS3 s3;
-    private S3Util service;
+    private S3Utils service;
 
     @Before
     public void setUp() {
         s3 = mock(AmazonS3.class);
-        service = new S3Util(s3);
+        service = new S3Utils(s3);
     }
 
     @Test
     public void whenInitializingAWSS3Service_thenNotNull() {
-        assertThat(new S3Util()).isNotNull();
+        assertThat(new S3Utils()).isNotNull();
     }
 
     @Test

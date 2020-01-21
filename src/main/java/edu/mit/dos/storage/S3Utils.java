@@ -13,55 +13,47 @@ import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
 
-public class S3Util {
+public class S3Utils {
 
     private final AmazonS3 s3client;
 
-    public S3Util() {
+    public S3Utils() {
         this(new AmazonS3Client() {
         });
     }
 
-    public S3Util(AmazonS3 s3client) {
+    public S3Utils(AmazonS3 s3client) {
         this.s3client = s3client;
     }
 
-    //is bucket exist?
     public boolean doesBucketExist(String bucketName) {
         return s3client.doesBucketExist(bucketName);
     }
 
-    //create a bucket
     public Bucket createBucket(String bucketName) {
         return s3client.createBucket(bucketName);
     }
 
-    //list all buckets
     public List<Bucket> listBuckets() {
         return s3client.listBuckets();
     }
 
-    //delete a bucket
     public void deleteBucket(String bucketName) {
         s3client.deleteBucket(bucketName);
     }
 
-    //uploading object
     public PutObjectResult putObject(String bucketName, String key, File file) {
         return s3client.putObject(bucketName, key, file);
     }
 
-    //listing objects
     public ObjectListing listObjects(String bucketName) {
         return s3client.listObjects(bucketName);
     }
 
-    //get an object
     public S3Object getObject(String bucketName, String objectKey) {
         return s3client.getObject(bucketName, objectKey);
     }
 
-    //copying an object
     public CopyObjectResult copyObject(
             String sourceBucketName,
             String sourceKey,
@@ -76,15 +68,12 @@ public class S3Util {
         );
     }
 
-    //deleting an object
     public void deleteObject(String bucketName, String objectKey) {
         s3client.deleteObject(bucketName, objectKey);
     }
 
-    //deleting multiple Objects
     public DeleteObjectsResult deleteObjects(DeleteObjectsRequest delObjReq) {
         return s3client.deleteObjects(delObjReq);
     }
-
 
 }

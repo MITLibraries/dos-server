@@ -58,12 +58,14 @@ public class ObjectService {
                 URL uri = new URL(s);
                 FileUtils.copyURLToFile(uri, f); // downloads first
 
+                logger.debug("Written file:{}", f.getAbsolutePath());
+
                 final String key = obj.getHandle() + "/" + num;
                 num++;
 
                 // Save to disk:
 
-                final String result  = s3Manager.getInstance().putObject(key, f); // no need to download it?
+                final String result = s3Manager.getInstance().putObject(key, f); // no need to download it?
 
                 logger.debug("DigitalFile:{} persisted with path:{}", s, result);
 
@@ -94,18 +96,15 @@ public class ObjectService {
     public @ResponseBody
     DigitalObject getObject(@RequestParam("oid") String oid) {
         final DigitalObject retrievedDigitalObject = objectJpaRepository.findByOid(Long.valueOf(oid));
-        if (retrievedDigitalObject == null){
+        if (retrievedDigitalObject == null) {
             logger.debug("Error - digital object not found:{}", oid);
         }
         logger.debug(retrievedDigitalObject.toString());
         return retrievedDigitalObject;
     }
 
-    public static File createTempDirectory()
-            throws IOException {
-        final File temp;
-
-        temp = File.createTempFile("temp", Long.toString(System.nanoTime()));
+    private File createTempDirectory() throws IOException {
+        final File temp = File.createTempFile("temp", Long.toString(System.nanoTime()));
 
         if (!(temp.delete())) {
             throw new IOException("Could not delete temp file: " + temp.getAbsolutePath());

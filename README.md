@@ -99,6 +99,27 @@ tail -f /path/to/tomcat/tmp/dos-logs/debug.log
 sudo tail -f /path/to/tomcat/logs/localhost.yyyy-mm-dd.log
 ```
 
+To make DOS post bistreams against S3 (as opposed to local filesystem), 
+change spring active profile in application.properties to "stage," and add 
+file application-stage.properties to resources folder
+(parallel to application.properties) with the following information:
+
+``` sh
+
+security.basic.enable: false
+security.ignored=/**
+
+serviceConfig.storage=s3
+
+serviceConfig.accessKey=your_access_key
+serviceConfig.secretKey=your_secret_key
+serviceConfig.bucket=dos-stage
+```
+
+Same applies for running integration tests against S3. Change spring active profiles to
+stage, and just copy/paste application-stage.properties
+to the relevant test folder (again, parallel to application.properties). 
+By default integration tests are run against the local file system.
 
 Deployments 
 -----------------------
