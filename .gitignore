@@ -27,7 +27,7 @@ target/
 *.prop
 tmp/
 **/connection.props
-**/application-prod.properties
+**/application-stage.properties
 
 out/
 .gradle/

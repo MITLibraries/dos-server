@@ -19,13 +19,17 @@ Building and Running the Artifact from Source
 
 ```sh
 
-# From the sourcecode folder, run maven for the build:
+# From the sourcecode folder, run Maven for the build (without integration tests):
 
 mvn clean verify
 
-# (Optional) To run the integration tests:
+# (Optional) To include and run the integration tests while building:
 
 mvn clean verify -P failsafe
+
+To run against S3:
+
+mvn clean install -P failsafe -DargLine="-Dstorage=s3"
 
 # Or, to run a single test:
 
@@ -95,6 +99,27 @@ tail -f /path/to/tomcat/tmp/dos-logs/debug.log
 sudo tail -f /path/to/tomcat/logs/localhost.yyyy-mm-dd.log
 ```
 
+To make DOS post bistreams against S3 (as opposed to local filesystem), 
+change spring active profile in application.properties to "stage," and add 
+file application-stage.properties to resources folder
+(parallel to application.properties) with the following information:
+
+``` sh
+
+security.basic.enable: false
+security.ignored=/**
+
+serviceConfig.storage=s3
+
+serviceConfig.accessKey=your_access_key
+serviceConfig.secretKey=your_secret_key
+serviceConfig.bucket=dos-stage
+```
+
+Same applies for running integration tests against S3. Change spring active profiles to
+stage, and just copy/paste application-stage.properties
+to the relevant test folder (again, parallel to application.properties). 
+By default integration tests are run against the local file system.
 
 Deployments 
 -----------------------

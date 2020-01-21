@@ -7,7 +7,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "file")
-public class File {
+public class DigitalFile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -26,8 +26,11 @@ public class File {
     @Column(name = "checksum")
     private String checksum;
 
+    @Column(name = "path")
+    private String path;
 
-    public File() {
+
+    public DigitalFile() {
 
     }
 
@@ -71,9 +74,17 @@ public class File {
         this.checksum = checksum;
     }
 
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
     @Override
     public String toString() {
-        return "File{" +
+        return "DigitalFile{" +
                 "oid=" + oid +
                 ", name='" + name +
                 ", type=" + type +

@@ -1,7 +1,9 @@
 package edu.mit.dos.model;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Representation of a digital object
@@ -28,11 +30,14 @@ public class DigitalObject {
     @Column(name = "update_date")
     private Date updateDate;
 
-    @Column(name="metadata_system")
+    @Column(name = "metadata_system")
     private String metadataSource;
 
-    @Column(name="source_system")
+    @Column(name = "source_system")
     private String sourceSystem;
+
+    @OneToMany
+    private List<DigitalFile> files =new ArrayList<>();
 
     public DigitalObject() {
 
@@ -50,7 +55,9 @@ public class DigitalObject {
         return title;
     }
 
-    public void setTitle(String title) { this.title = title; }
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
     public String getHandle() {
         return handle;
@@ -92,6 +99,13 @@ public class DigitalObject {
         this.sourceSystem = sourceSystem;
     }
 
+    public List<DigitalFile> getFiles() {
+        return files;
+    }
+
+    public void setFiles(List<DigitalFile> files) {
+        this.files = files;
+    }
 
     @Override
     public String toString() {

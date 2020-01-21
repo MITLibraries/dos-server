@@ -1,11 +1,11 @@
 package edu.mit.dos.persistence;
 
-import edu.mit.dos.model.File;
+import edu.mit.dos.model.DigitalFile;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 
-public interface FileJpaRepository extends JpaRepository<File, Integer> {
+public interface FileJpaRepository extends JpaRepository<DigitalFile, Integer> {
 
-    File findByOid(long oid);
+    DigitalFile findByOid(long oid);
 
 }
