@@ -9,14 +9,18 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+@Transactional
 @RestController
 public class ObjectService {
 
@@ -115,6 +119,119 @@ public class ObjectService {
         }
 
         return (temp);
+    }
+
+    @RequestMapping(value = "/object", method = RequestMethod.PATCH)
+    public String update(@RequestParam("oid") String oidStr,
+                         @RequestParam(value = "handle", required = false) String handle,
+                         @RequestParam(value = "title", required = false) String title,
+                         @RequestParam(value = "target_links", required = false) List<String> targetLinks,
+                         @RequestParam(value = "source_system", required = false) String sourceSystem,
+                         @RequestParam(value = "metadata_system", required = false) String metadataSystem) {
+
+        logger.debug("Updating for object id:{}", oidStr);
+
+        long oid = Long.parseLong(oidStr);
+
+        DigitalObject object = objectJpaRepository.findByOid(oid);
+
+        if (!handle.isEmpty()) {
+            object.setHandle(handle);
+        } else {
+            return "Invalid attribute (handle) supplied for PATCH";
+        }
+
+        if (!title.isEmpty()) {
+            object.setTitle(title);
+        } else {
+            return "Invalid attribute (title) supplied for PATCH";
+        }
+
+        object.setUpdateDate(new Date());
+
+        if (!sourceSystem.isEmpty()) { //tbd can do validation here. if so move to signature with the annotation
+            object.setSourceSystem(sourceSystem);
+        } else {
+            return "Invalid attribute (source) supplied for PATCH";
+        }
+
+        if (!metadataSystem.isEmpty()) {
+            object.setMetadataSource(metadataSystem);
+        } else {
+            return "Invalid attribute (metadata) supplied for PATCH";
+        }
+
+        if (!targetLinks.isEmpty()) {
+            List<DigitalFile> empty = new ArrayList<>();
+            object.setFiles(empty);
+        }
+
+        try {
+            object = objectJpaRepository.save(object);
+        } catch (Exception e) {
+            logger.error("Error updating object:", e);
+            return "fail"; // todo change to status code
+        }
+
+        final List<DigitalFile> files = fileJpaRepository.findByOid(oid);
+
+        logger.debug("Existing files:{}", files, "for oid:{}", oid);
+
+        try {
+            fileJpaRepository.deleteByOid(oid);
+        } catch (Exception e) {
+            logger.error("Error deleting files for oid:{}", oid);
+            return "fail";
+        }
+
+        logger.debug("Deleted Files. Current files:{}", fileJpaRepository.findByOid(oid));
+
+        // TODO The following block will be refactored/removed once DOS-176 is merged. Currently this is duplicate code.
+
+        int num = 0;
+
+        for (final String s : targetLinks) {
+
+            try {
+                final File f = new File(createTempDirectory() + "/" + num);
+
+                final URL uri = new URL(s);
+                FileUtils.copyURLToFile(uri, f); // downloads first
+
+                logger.debug("Written file:{}", f.getAbsolutePath());
+
+                final String key = object.getHandle() + "/" + num;
+                num++;
+
+                // Save to disk:
+
+                final String result = s3Manager.getInstance().putObject(key, f); // no need to download it?
+
+                logger.debug("DigitalFile:{} persisted with path:{}", s, result);
+
+                logger.debug("Temporary file:{} on disk deleted:{}", f.getPath(), f.delete());
+
+                // Save to db:
+
+                final DigitalFile digitalFile = new DigitalFile();
+                digitalFile.setPath(result); // Construct path out of saved S3
+                fileJpaRepository.save(digitalFile);
+
+                final List<DigitalFile> digitalFiles = object.getFiles();
+                digitalFiles.add(digitalFile); //todo clean up
+                object.setFiles(digitalFiles);
+
+                logger.debug("DigitalFile copied to path:{}", result);
+
+            } catch (Exception e) {
+                logger.error("Error writing file:", e);
+            }
+        }
+
+        logger.debug("New files:{}", fileJpaRepository.findByOid(oid));
+
+        objectJpaRepository.save(object);
+        return "ok";
     }
 
 
