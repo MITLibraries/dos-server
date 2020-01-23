@@ -26,6 +26,9 @@ public class ServiceConfig {
     @NotNull
     private String storage;
 
+    @NotNull
+    private String minter;
+
     public String getAccessKey() {
         return accessKey;
     }
@@ -56,5 +59,13 @@ public class ServiceConfig {
 
     public void setStorage(String storage) {
         this.storage = storage;
+    }
+
+    public String getMinter() {
+        return minter;
+    }
+
+    public void setMinter(String minter) {
+        this.minter = minter;
     }
 }

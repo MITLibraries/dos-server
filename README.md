@@ -117,6 +117,12 @@ stage, and just copy/paste application-stage.properties
 to the relevant test folder (again, parallel to application.properties). 
 By default integration tests are run against the local file system.
 
+The strategy for minting the identifiers can be changed with this configuration:
+
+``` sh
+serviceConfig.minter=pid
+```
+
 Deployments 
 -----------------------
 

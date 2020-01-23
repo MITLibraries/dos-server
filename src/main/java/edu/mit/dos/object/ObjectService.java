@@ -33,7 +33,10 @@ public class ObjectService {
     private FileJpaRepository fileJpaRepository;
 
     @Autowired
-    private StorageInterfaceFactory s3Manager;
+    private StorageInterfaceFactory storage;
+
+    @Autowired
+    private IdentifierFactory identifierFactory;
 
     @RequestMapping(value = "/object", method = RequestMethod.POST)
     public String create(@RequestParam("handle") String handle,
@@ -42,57 +45,62 @@ public class ObjectService {
                          @RequestParam("source_system") String sourceSystem,
                          @RequestParam("metadata_system") String metadataSystem) {
 
-        final DigitalObject obj = new DigitalObject();
-        obj.setHandle(handle);
-        obj.setTitle(title);
-        obj.setDateCreated(new Date());
-        obj.setUpdateDate(new Date());
-        obj.setMetadataSource(metadataSystem);
-        obj.setSourceSystem(sourceSystem);
+        final DigitalObject object = new DigitalObject();
+        object.setHandle(handle);
+        object.setTitle(title);
+        object.setDateCreated(new Date());
+        object.setUpdateDate(new Date());
+        object.setMetadataSource(metadataSystem);
+        object.setSourceSystem(sourceSystem);
 
-        int num = 0; // TODO
+        int item = 0;
 
-        for (final String s : targetLinks) { //TODO download/stream to S3
+        for (final String s : targetLinks) {
 
-            // Persist to S3 or disk depending on what was passed at runtime
+            try {  // todo refactor all file logic out
+                final File f = new File(createTempDirectory() + File.separator + item);
 
-            try {
-                final File f = new File(createTempDirectory() + "/" + num);
-
-                URL uri = new URL(s);
+                final URL uri = new URL(s);
                 FileUtils.copyURLToFile(uri, f); // downloads first
 
                 logger.debug("Written file:{}", f.getAbsolutePath());
 
-                final String key = obj.getHandle() + "/" + num;
-                num++;
+                final String key = identifierFactory.getInstance().generate() + File.separator + item;
 
-                // Save to disk:
+                logger.debug("Using identifier:{}", key);
 
-                final String result = s3Manager.getInstance().putObject(key, f); // no need to download it?
+                item++;
+
+                // Save to storage (s3 or disk, depending on what's specified in the properties file):
+
+                final String result = storage.getInstance().putObject(key, f);
 
                 logger.debug("DigitalFile:{} persisted with path:{}", s, result);
 
-                logger.debug("Temporary file:{} on disk deleted:{}", f.getPath(), f.delete());
+                // Save to the database:
 
-                // Save to db:
+                final DigitalFile file = new DigitalFile();
+                file.setPath(result);
+                fileJpaRepository.save(file);
 
-                final DigitalFile digitalFile = new DigitalFile();
-                digitalFile.setPath(result); // Construct path out of saved S3
-                fileJpaRepository.save(digitalFile);
-                final List<DigitalFile> digitalFiles = obj.getFiles();
-                digitalFiles.add(digitalFile); //todo clean up
-                obj.setFiles(digitalFiles);
-                logger.debug("DigitalFile copied to path:{}", result);
+                final List<DigitalFile> digitalFiles = object.getFiles();
+                digitalFiles.add(file); //todo clean up (refactor all file logic logic out)
+                object.setFiles(digitalFiles);
 
-            } catch (Exception e) {
-                logger.error("Error writing file:", e);
+                // Delete the temporary file:
+
+                logger.debug("Temporary file:{} deleted:{}", f.getPath(), f.delete());
+
+            } catch (IOException e) {
+                logger.error("I/O error with file operation:", e);
             }
         }
 
-        final DigitalObject persistedObjected = objectJpaRepository.save(obj);
-        logger.debug("Persisted:{}", persistedObjected.getOid());
-        return String.valueOf(persistedObjected.getOid());
+        logger.debug("Files copied:{} out of:", item, targetLinks.size());
+
+        final DigitalObject savedObject = objectJpaRepository.save(object);
+        logger.debug("Persisted to database:{}", savedObject.getOid());
+        return String.valueOf(savedObject.getOid());
     }
 
 
