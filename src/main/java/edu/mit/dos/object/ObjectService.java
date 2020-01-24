@@ -213,7 +213,7 @@ public class ObjectService {
 
                 // Save to disk:
 
-                final String result = s3Manager.getInstance().putObject(key, f); // no need to download it?
+                final String result = storage.getInstance().putObject(key, f); // no need to download it?
 
                 logger.debug("DigitalFile:{} persisted with path:{}", s, result);
 
