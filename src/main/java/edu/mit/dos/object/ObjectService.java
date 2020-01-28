@@ -4,21 +4,27 @@ import edu.mit.dos.model.DigitalFile;
 import edu.mit.dos.model.DigitalObject;
 import edu.mit.dos.persistence.DigitalObjectJpaRepository;
 import edu.mit.dos.persistence.FileJpaRepository;
+import edu.mit.dos.persistence.ObjectFilePersistence;
 import edu.mit.dos.storage.StorageInterfaceFactory;
-import org.apache.commons.io.FileUtils;
+import edu.mit.dos.util.FileConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Date;
 
 @Transactional
 @RestController
@@ -38,6 +44,9 @@ public class ObjectService {
     @Autowired
     private IdentifierFactory identifierFactory;
 
+    @Autowired
+    private ObjectFilePersistence objectFilePersistence;
+
     @RequestMapping(value = "/object", method = RequestMethod.POST)
     public String create(@RequestParam("handle") String handle,
                          @RequestParam("title") String title,
@@ -53,55 +62,30 @@ public class ObjectService {
         object.setMetadataSource(metadataSystem);
         object.setSourceSystem(sourceSystem);
 
+
         int item = 0;
 
-        for (final String s : targetLinks) {
+        // copy the files locally, then copy the files to storage, and then persist to the database:
 
-            try {  // todo refactor all file logic out
-                final File f = new File(createTempDirectory() + File.separator + item);
+        final Map<String, File> files = new HashMap<>(); // <key, file>
 
-                final URL uri = new URL(s);
-                FileUtils.copyURLToFile(uri, f); // downloads first
-
-                logger.debug("Written file:{}", f.getAbsolutePath());
-
+        for (final String link : targetLinks) {
+            try {
                 final String key = identifierFactory.getInstance().generate() + File.separator + item;
-
-                logger.debug("Using identifier:{}", key);
-
+                final File f = FileConverter.toFile(link);
+                files.put(key, f);
                 item++;
-
-                // Save to storage (s3 or disk, depending on what's specified in the properties file):
-
-                final String result = storage.getInstance().putObject(key, f);
-
-                logger.debug("DigitalFile:{} persisted with path:{}", s, result);
-
-                // Save to the database:
-
-                final DigitalFile file = new DigitalFile();
-                file.setPath(result);
-                fileJpaRepository.save(file);
-
-                final List<DigitalFile> digitalFiles = object.getFiles();
-                digitalFiles.add(file); //todo clean up (refactor all file logic logic out)
-                object.setFiles(digitalFiles);
-
-                // Delete the temporary file:
-
-                logger.debug("Temporary file:{} deleted:{}", f.getPath(), f.delete());
-
             } catch (IOException e) {
-                logger.error("I/O error with file operation:", e);
+                logger.error("Error downloading files:{}", e);
+                return "error"; // todo
             }
         }
 
-        logger.debug("Files copied:{} out of:", item, targetLinks.size());
-
-        final DigitalObject savedObject = objectJpaRepository.save(object);
-        logger.debug("Persisted to database:{}", savedObject.getOid());
-        return String.valueOf(savedObject.getOid());
+        final List<String> storagePaths = persistToStorage(files);
+        final DigitalObject p = objectFilePersistence.save(storagePaths, object);
+        return String.valueOf(p.getOid());
     }
+
 
 
     @RequestMapping(value = "/object", method = RequestMethod.GET)
@@ -115,19 +99,6 @@ public class ObjectService {
         return retrievedDigitalObject;
     }
 
-    private File createTempDirectory() throws IOException {
-        final File temp = File.createTempFile("temp", Long.toString(System.nanoTime()));
-
-        if (!(temp.delete())) {
-            throw new IOException("Could not delete temp file: " + temp.getAbsolutePath());
-        }
-
-        if (!(temp.mkdir())) {
-            throw new IOException("Could not create temp directory: " + temp.getAbsolutePath());
-        }
-
-        return (temp);
-    }
 
     @RequestMapping(value = "/object", method = RequestMethod.PATCH)
     public String update(@RequestParam("oid") String oidStr,
@@ -194,53 +165,56 @@ public class ObjectService {
 
         logger.debug("Deleted Files. Current files:{}", fileJpaRepository.findByOid(oid));
 
-        // TODO The following block will be refactored/removed once DOS-176 is merged. Currently this is duplicate code.
+        int item = 0;
 
-        int num = 0;
+        // first copy the files, then copy the files to storage -- kind of like a block chain effect
+
+        final Map<String, File> map =new HashMap<>();
 
         for (final String s : targetLinks) {
-
             try {
-                final File f = new File(createTempDirectory() + "/" + num);
-
-                final URL uri = new URL(s);
-                FileUtils.copyURLToFile(uri, f); // downloads first
-
-                logger.debug("Written file:{}", f.getAbsolutePath());
-
-                final String key = object.getHandle() + "/" + num;
-                num++;
-
-                // Save to disk:
-
-                final String result = storage.getInstance().putObject(key, f); // no need to download it?
-
-                logger.debug("DigitalFile:{} persisted with path:{}", s, result);
-
-                logger.debug("Temporary file:{} on disk deleted:{}", f.getPath(), f.delete());
-
-                // Save to db:
-
-                final DigitalFile digitalFile = new DigitalFile();
-                digitalFile.setPath(result); // Construct path out of saved S3
-                fileJpaRepository.save(digitalFile);
-
-                final List<DigitalFile> digitalFiles = object.getFiles();
-                digitalFiles.add(digitalFile); //todo clean up
-                object.setFiles(digitalFiles);
-
-                logger.debug("DigitalFile copied to path:{}", result);
-
-            } catch (Exception e) {
-                logger.error("Error writing file:", e);
+                final File f = FileConverter.toFile(s);
+                final String key = object.getHandle() + "/" + item;
+                map.put(key, f);
+                item++;
+            } catch (IOException e) {
+                logger.error("Error downloading files:{}", e);
+                return "error"; // todo
             }
         }
 
-        logger.debug("New files:{}", fileJpaRepository.findByOid(oid));
+        final List<String> results = persistToStorage(map);
 
-        objectJpaRepository.save(object);
-        return "ok";
+        // Update the database:
+        final DigitalObject p = objectFilePersistence.save(results, object);
+
+        logger.debug("Updated entity:{}", p);
+
+        return "ok"; // todo
     }
 
+    private List<String> persistToStorage(final Map<String, File> map) {
+
+        final List<String> results = new ArrayList<>();
+
+        for (final Map.Entry<String,File> entry : map.entrySet()) {
+            final String path = entry.getKey();
+            final File f = entry.getValue();
+
+            if (!f.exists()) {
+                logger.warn("File no longer exists:{}", f.getPath());
+                continue;
+            }
+
+            // Persist to storage:
+
+            final String result = storage.getInstance().putObject(path, f);
+            logger.debug("DigitalFile:{} persisted to storage path:{}", path, f);
+
+            results.add(result);
+        }
+
+        return results;
+    }
 
 }
