@@ -58,7 +58,7 @@ public class S3Impl implements StorageManager {
     @Override
     public void deleteObject(String key) {
         try {
-            util.deleteObject(serviceConfig.getBucket(), key);
+            util.deleteObject(serviceConfig.getBucket(), key.replace(serviceConfig.getBaseurl(), ""));
         } catch (Exception e) {
             logger.error("Error writing to S3", e);
         }

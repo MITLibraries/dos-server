@@ -29,6 +29,9 @@ public class ServiceConfig {
     @NotNull
     private String minter;
 
+    @NotNull
+    private String baseurl;
+
     public String getAccessKey() {
         return accessKey;
     }
@@ -67,5 +70,13 @@ public class ServiceConfig {
 
     public void setMinter(String minter) {
         this.minter = minter;
+    }
+
+    public String getBaseurl() {
+        return baseurl;
+    }
+
+    public void setBaseurl(String baseurl) {
+        this.baseurl = baseurl;
     }
 }

@@ -92,13 +92,11 @@ public class ObjectService {
         if (retrievedDigitalObject == null){
             logger.debug("Error - digital object not found:{}", oid);
         }
-        final String mainBucket = "https://dos-stage.s3.amazonaws.com/";
         objectJpaRepository.delete(retrievedDigitalObject);
         final List<DigitalFile> filesToDelete = retrievedDigitalObject.getFiles();
         for (DigitalFile fileToDelete : filesToDelete){
-            String deletePath = fileToDelete.getPath().replace(mainBucket, "");
-            storage.getInstance().deleteObject(deletePath);
-            logger.debug("File deleted :{}", deletePath);
+            storage.getInstance().deleteObject(fileToDelete.getPath());
+            logger.debug("File deleted :{}", fileToDelete.getPath());
         }
         logger.debug("Object deleted:{}", oid);
     }
