@@ -55,16 +55,26 @@ public class S3Impl implements StorageManager {
 
     }
 
+    @Override
+    public void deleteObject(String key) {
+        try {
+            util.deleteObject(serviceConfig.getBucket(), key.replace(serviceConfig.getBaseurl(), ""));
+        } catch (Exception e) {
+            logger.error("Error writing to S3", e);
+        }
+    }
+
     /**
      *  Upload an object to S3
      */
     public String putObject(String key, File file) {
-
-        logger.debug("Putting object in bucket:{} in key:{} for file:{}", serviceConfig.getBucket(), key, file.getPath());
+        final String bucket = serviceConfig.getBucket();
+        logger.debug("Putting object in bucket:{} in key:{} for file:{}", bucket, key, file.getPath());
 
         try {
-            final PutObjectResult results = util.putObject(serviceConfig.getBucket(), key, file);
-            return results.getContentMd5();
+            final PutObjectResult results = util.putObject(bucket, key, file);
+            final String url = s3client.getUrl(bucket, key).toExternalForm();
+            return url;
 
         } catch (SdkClientException e) {
             logger.error("Error writing to S3", e);

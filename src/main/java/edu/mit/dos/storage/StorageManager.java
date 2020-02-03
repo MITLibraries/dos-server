@@ -6,4 +6,6 @@ public interface StorageManager {
 
     String putObject(String key, File file);
 
+    void deleteObject(String key);
+
 }

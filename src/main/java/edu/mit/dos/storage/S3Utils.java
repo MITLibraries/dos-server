@@ -12,7 +12,9 @@ import com.amazonaws.services.s3.model.DeleteObjectsResult;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
+import org.springframework.stereotype.Service;
 
+@Service
 public class S3Utils {
 
     private final AmazonS3 s3client;

@@ -57,6 +57,22 @@ public class ObjectServiceIT {
         assertThat(body2.getTitle()).isEqualTo("Item Title");
     }
 
+    @Test
+    public void testDelete() {
+        MultiValueMap<String, String> map= new LinkedMultiValueMap<>();
+        map.add("handle", "hdl.net");
+        map.add("title", "Item Title");
+        map.add("metadata_system", "dome");
+        map.add("source_system", "archivesspace");
+        map.add("target_links", "https://dome.mit.edu/bitstream/handle/1721.3/176391/249794_cp.jpg?sequence=1");
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, new HttpHeaders());
+        String body = this.restTemplate.postForObject("/object",  request,String.class);
+        assertThat(body).isNotNull();
+        this.restTemplate.delete("/object?oid="+body, DigitalObject.class);
+        DigitalObject body2 = this.restTemplate.getForObject("/object?oid="+body, DigitalObject.class);
+        assertThat(body2.getOid()).isEqualTo(0);
+    }
+
 
     @Test
     public void testPatch() {

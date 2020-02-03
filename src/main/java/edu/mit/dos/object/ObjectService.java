@@ -86,6 +86,20 @@ public class ObjectService {
         return String.valueOf(p.getOid());
     }
 
+    @RequestMapping(value = "/object", method = RequestMethod.DELETE)
+    public void deleteObject(@RequestParam("oid") String oid) {
+        final DigitalObject retrievedDigitalObject = objectJpaRepository.findByOid(Long.valueOf(oid));
+        if (retrievedDigitalObject == null){
+            logger.debug("Error - digital object not found:{}", oid);
+        }
+        objectJpaRepository.delete(retrievedDigitalObject);
+        final List<DigitalFile> filesToDelete = retrievedDigitalObject.getFiles();
+        for (DigitalFile fileToDelete : filesToDelete){
+            storage.getInstance().deleteObject(fileToDelete.getPath());
+            logger.debug("File deleted :{}", fileToDelete.getPath());
+        }
+        logger.debug("Object deleted:{}", oid);
+    }
 
 
     @RequestMapping(value = "/object", method = RequestMethod.GET)
