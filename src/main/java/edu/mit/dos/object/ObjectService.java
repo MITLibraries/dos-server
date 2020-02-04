@@ -5,6 +5,7 @@ import edu.mit.dos.model.DigitalObject;
 import edu.mit.dos.persistence.DigitalObjectJpaRepository;
 import edu.mit.dos.persistence.FileJpaRepository;
 import edu.mit.dos.persistence.ObjectFilePersistence;
+import edu.mit.dos.repository.UserRepository;
 import edu.mit.dos.storage.StorageInterfaceFactory;
 import edu.mit.dos.util.FileConverter;
 import org.slf4j.Logger;

@@ -32,6 +32,9 @@ public class ServiceConfig {
     @NotNull
     private String baseurl;
 
+    @NotNull
+    private String mode;
+
     public String getAccessKey() {
         return accessKey;
     }
@@ -78,5 +81,13 @@ public class ServiceConfig {
 
     public void setBaseurl(String baseurl) {
         this.baseurl = baseurl;
+    }
+
+    public String getMode() {
+        return mode;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
     }
 }
