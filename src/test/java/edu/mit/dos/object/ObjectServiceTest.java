@@ -1,6 +1,7 @@
 package edu.mit.dos.object;
 
 import edu.mit.dos.model.DigitalObject;
+import edu.mit.dos.model.DigitalObjectBuilder;
 import edu.mit.dos.persistence.DigitalObjectJpaRepository;
 import edu.mit.dos.storage.StorageInterfaceFactory;
 import edu.mit.dos.storage.S3Impl;
@@ -12,6 +13,8 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.View;
+
+import java.util.Date;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -54,7 +57,7 @@ public class ObjectServiceTest {
 
     @Test
     public void testGet() throws Exception {
-        DigitalObject digitalObject = new DigitalObject();
+        DigitalObject digitalObject = new DigitalObjectBuilder(new Date(), new Date(), "", "").createDigitalObject();
         digitalObject.setOid(1222);
         when(objectJpaRepository.findByOid(1222)).thenReturn(digitalObject);
         mockMvc.perform(get("/object").param("oid", "1222"))
@@ -66,7 +69,7 @@ public class ObjectServiceTest {
 
     @Test
     public void testDelete() throws Exception {
-        DigitalObject digitalObject = new DigitalObject();
+        DigitalObject digitalObject = new DigitalObjectBuilder(new Date(), new Date(), "", "").createDigitalObject();
         digitalObject.setOid(1222);
         when(s3Manager.getInstance()).thenReturn(s3Impl);
         when(objectJpaRepository.findByOid(1222)).thenReturn(digitalObject);

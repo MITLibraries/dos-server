@@ -2,6 +2,7 @@ package edu.mit.dos.object;
 
 import edu.mit.dos.model.DigitalFile;
 import edu.mit.dos.model.DigitalObject;
+import edu.mit.dos.model.DigitalObjectBuilder;
 import edu.mit.dos.persistence.DigitalObjectJpaRepository;
 import edu.mit.dos.persistence.FileJpaRepository;
 import edu.mit.dos.persistence.ObjectFilePersistence;
@@ -51,16 +52,13 @@ public class ObjectService {
     public String create(@RequestParam("handle") String handle,
                          @RequestParam("title") String title,
                          @RequestParam("target_links") List<String> targetLinks,
-                         @RequestParam("source_system") String sourceSystem,
-                         @RequestParam("metadata_system") String metadataSystem) {
+                         @RequestParam("source_system") String contentSource,
+                         @RequestParam("metadata_system") String metadataSource) {
 
-        final DigitalObject object = new DigitalObject();
-        object.setHandle(handle);
-        object.setTitle(title);
-        object.setDateCreated(new Date());
-        object.setUpdateDate(new Date());
-        object.setMetadataSource(metadataSystem);
-        object.setSourceSystem(sourceSystem);
+        final DigitalObject object = new DigitalObjectBuilder(new Date(), new Date(), metadataSource, contentSource)
+                .setHandle(handle)
+                .setTitle(title)
+                .createDigitalObject();
 
 
         int item = 0;
@@ -119,8 +117,8 @@ public class ObjectService {
                          @RequestParam(value = "handle", required = false) String handle,
                          @RequestParam(value = "title", required = false) String title,
                          @RequestParam(value = "target_links", required = false) List<String> targetLinks,
-                         @RequestParam(value = "source_system", required = false) String sourceSystem,
-                         @RequestParam(value = "metadata_system", required = false) String metadataSystem) {
+                         @RequestParam(value = "source_system", required = false) String contentSource,
+                         @RequestParam(value = "metadata_system", required = false) String metadataSource) {
 
         logger.debug("Updating for object id:{}", oidStr);
 
@@ -140,16 +138,16 @@ public class ObjectService {
             return "Invalid attribute (title) supplied for PATCH";
         }
 
-        object.setUpdateDate(new Date());
+        object.setDateUpdated(new Date());
 
-        if (!sourceSystem.isEmpty()) { //tbd can do validation here. if so move to signature with the annotation
-            object.setSourceSystem(sourceSystem);
+        if (!contentSource.isEmpty()) { //tbd can do validation here. if so move to signature with the annotation
+            object.setContentSource(contentSource);
         } else {
             return "Invalid attribute (source) supplied for PATCH";
         }
 
-        if (!metadataSystem.isEmpty()) {
-            object.setMetadataSource(metadataSystem);
+        if (!metadataSource.isEmpty()) {
+            object.setMetadataSource(metadataSource);
         } else {
             return "Invalid attribute (metadata) supplied for PATCH";
         }

@@ -1,6 +1,7 @@
 package edu.mit.dos.persistence;
 
 import edu.mit.dos.model.DigitalObject;
+import edu.mit.dos.model.DigitalObjectBuilder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,7 +28,7 @@ public class ObjectFilePersistenceIT {
     // Tests that the associated file entity is saved with the digital object
     @Test
     public void testObjectAndFileSave() {
-        final DigitalObject digitalObject = new DigitalObject();
+        final DigitalObject digitalObject = new DigitalObjectBuilder(new Date(), new Date(), "", "").createDigitalObject();
         digitalObject.setTitle("test");
 
         final List<String> paths = new ArrayList<>();
