@@ -39,6 +39,10 @@ public class DigitalObject {
     @OneToMany
     private List<DigitalFile> files =new ArrayList<>();
 
+    public DigitalObject() {
+
+    }
+
     public DigitalObject(DigitalObjectBuilder digitalObjectBuilder) {
 
     }
