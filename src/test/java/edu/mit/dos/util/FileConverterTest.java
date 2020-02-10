@@ -7,6 +7,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
+import java.io.IOException;
 
 import static org.junit.Assert.*;
 
@@ -23,13 +24,22 @@ public class FileConverterTest {
     // TODO: Remove when file copying capability from Dome is no longer needed.
     @Test
     public void testCreate() throws Exception {
-        final File f = FileConverter.toFile(targetLink);
+        final File f;
+        try {
+            f = FileConverter.toFile(targetLink);
 
-        if (f == null) {
-            fail("File was not copied");
+            if (f == null) {
+                fail("File was not copied");
+            }
+
+
+            assertNotNull(f.getPath());
+            assertTrue(f.length() == Long.valueOf(targetLinkSize));
+
+        } catch (IOException e) {
+
         }
 
-        assertNotNull(f.getPath());
-        assertTrue(f.length() == Long.valueOf(targetLinkSize));
+
     }
 }

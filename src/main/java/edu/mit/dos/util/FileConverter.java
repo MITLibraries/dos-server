@@ -1,13 +1,18 @@
 package edu.mit.dos.util;
 
+import edu.mit.dos.service.UserServiceImpl;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
 public class FileConverter {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     private static String PREFIX = "temp";
 
@@ -19,7 +24,12 @@ public class FileConverter {
         }
 
         final URL uri = new URL(httpLink);
-        FileUtils.copyURLToFile(uri, f);
+        try {
+            FileUtils.copyURLToFile(uri, f);
+        } catch (IOException e) {
+            logger.error("Error copying file to url. {}", e);
+            throw e;
+        }
         return f;
     }
 
