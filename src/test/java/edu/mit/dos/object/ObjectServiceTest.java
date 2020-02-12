@@ -57,7 +57,8 @@ public class ObjectServiceTest {
 
     @Test
     public void testGet() throws Exception {
-        DigitalObject digitalObject = new DigitalObjectBuilder(new Date(), new Date(), "", "").createDigitalObject();
+        DigitalObject digitalObject = new DigitalObjectBuilder(new Date(), new Date(), "",
+                "", "", "").createDigitalObject();
         digitalObject.setOid(1222);
         when(objectJpaRepository.findByOid(1222)).thenReturn(digitalObject);
         mockMvc.perform(get("/object").param("oid", "1222"))
@@ -69,7 +70,8 @@ public class ObjectServiceTest {
 
     @Test
     public void testDelete() throws Exception {
-        DigitalObject digitalObject = new DigitalObjectBuilder(new Date(), new Date(), "", "").createDigitalObject();
+        DigitalObject digitalObject = new DigitalObjectBuilder(new Date(), new Date(), "",
+                "", "", "").createDigitalObject();
         digitalObject.setOid(1222);
         when(s3Manager.getInstance()).thenReturn(s3Impl);
         when(objectJpaRepository.findByOid(1222)).thenReturn(digitalObject);

@@ -28,7 +28,8 @@ public class ObjectFilePersistenceIT {
     // Tests that the associated file entity is saved with the digital object
     @Test
     public void testObjectAndFileSave() {
-        final DigitalObject digitalObject = new DigitalObjectBuilder(new Date(), new Date(), "", "").createDigitalObject();
+        final DigitalObject digitalObject = new DigitalObjectBuilder(new Date(), new Date(), "",
+                "", "","").createDigitalObject();
         digitalObject.setTitle("test");
 
         final List<String> paths = new ArrayList<>();

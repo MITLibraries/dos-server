@@ -44,7 +44,12 @@ public class DigitalObject {
     }
 
     public DigitalObject(DigitalObjectBuilder digitalObjectBuilder) {
-
+        this.dateCreated = digitalObjectBuilder.getDateCreated();
+        this.dateUpdated = digitalObjectBuilder.getDateUpdated();
+        this.metadataSource = digitalObjectBuilder.getMetadataSource();
+        this.contentSource = digitalObjectBuilder.getContentSource();
+        this.handle = digitalObjectBuilder.getHandle();
+        this.title = digitalObjectBuilder.getTitle();
     }
 
     public long getOid() {

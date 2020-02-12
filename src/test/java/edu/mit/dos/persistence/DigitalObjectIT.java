@@ -26,11 +26,14 @@ public class DigitalObjectIT {
 
     @Test
     public void testById() {
-        DigitalObject digitalObject = new DigitalObjectBuilder(new Date(), new Date(), "", "").createDigitalObject();
-        digitalObject.setHandle("https://hdl.net");
+        DigitalObject digitalObject = new DigitalObjectBuilder(new Date(), new Date(), "test source",
+                "test content", "https://hdl.net", "test title").createDigitalObject();
         entityManager.persist(digitalObject);
         entityManager.flush();
         DigitalObject digitalObject1= digitalObjectJpaRepository.findByHandle("https://hdl.net");
         assertThat(digitalObject.getHandle().equalsIgnoreCase(digitalObject1.getHandle()));
+        assertThat(digitalObject.getHandle().equalsIgnoreCase(digitalObject1.getContentSource()));
+        assertThat(digitalObject.getHandle().equalsIgnoreCase(digitalObject1.getMetadataSource()));
+        assertThat(digitalObject.getHandle().equalsIgnoreCase(digitalObject1.getTitle()));
     }
 }

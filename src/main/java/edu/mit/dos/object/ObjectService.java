@@ -55,9 +55,8 @@ public class ObjectService {
                          @RequestParam("source_system") String contentSource,
                          @RequestParam("metadata_system") String metadataSource) {
 
-        final DigitalObject object = new DigitalObjectBuilder(new Date(), new Date(), metadataSource, contentSource)
-                .setHandle(handle)
-                .setTitle(title)
+        final DigitalObject object = new DigitalObjectBuilder(new Date(), new Date(), metadataSource, contentSource,
+                handle, title)
                 .createDigitalObject();
 
 
