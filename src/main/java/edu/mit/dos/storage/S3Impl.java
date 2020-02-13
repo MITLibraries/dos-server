@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
+import java.io.IOException;
 
 @Service
 public class S3Impl implements StorageManager {
@@ -67,7 +68,7 @@ public class S3Impl implements StorageManager {
     /**
      *  Upload an object to S3
      */
-    public String putObject(String key, File file) {
+    public String putObject(String key, File file) throws IOException{
         final String bucket = serviceConfig.getBucket();
         logger.debug("Putting object in bucket:{} in key:{} for file:{}", bucket, key, file.getPath());
 
@@ -78,7 +79,7 @@ public class S3Impl implements StorageManager {
 
         } catch (SdkClientException e) {
             logger.error("Error writing to S3", e);
-            return "";
+            throw new IOException(e);
         }
     }
 
