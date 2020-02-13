@@ -11,8 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
+import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
@@ -180,6 +179,24 @@ public class ObjectServiceIT {
         final DigitalObject body3 = this.restTemplate.getForObject("/object?oid=" + oid, DigitalObject.class);
         assertThat(body3.getTitle()).isEqualTo("Item Title"); // the original title should remain as is since we didn't supply it
     }
+
+    @Test
+    public void testGetFile() {
+        final MultiValueMap<String, String> map = getRequestParameters();
+        final HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, new HttpHeaders());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM));
+
+        HttpEntity<String> entity = new HttpEntity<String>(headers);
+        ResponseEntity<byte[]> response = restTemplate.exchange(
+                "/file?oid=1",
+                HttpMethod.GET, entity, byte[].class, "1");
+
+
+                //this.restTemplate.postForObject("/file", request, String.class);
+        assertThat(response).isNotNull();
+    }
+
 
 
     private MultiValueMap<String, String> getRequestParameters() {
