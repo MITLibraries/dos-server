@@ -7,8 +7,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.web.support.SpringBootServletInitializer;
+
+
 import org.springframework.context.annotation.Bean;
 
 import javax.annotation.PostConstruct;
@@ -20,23 +20,23 @@ import java.util.Arrays;
  * Responsible for booting this Spring-based application
  */
 @SpringBootApplication
-public class SpringMain extends SpringBootServletInitializer {
+public class SpringMain  {
 
     @Autowired (required = false)
     UserService userService;
 
     @Autowired(required = false)
-    ServiceConfig serviceConfig;
+    ServiceConfig config;
 
 
     public static void main(String[] args) {
         SpringApplication.run(SpringMain.class, args);
     }
 
-    @Override
+   /* @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
         return builder.sources(SpringMain.class);
-    }
+    }*/
 
     @Bean
     public ModelMapper modelMapper() {
@@ -53,11 +53,11 @@ public class SpringMain extends SpringBootServletInitializer {
             return;
         }
 
-        if (serviceConfig == null) {
+        if (config == null) {
             return;
         }
 
-        if (serviceConfig.getMode().equals("testing") == false) {
+        if (config.getMode().equals("testing") == false) {
             return;
         }
 
@@ -71,7 +71,7 @@ public class SpringMain extends SpringBootServletInitializer {
         admin.setUsername("admin");
         admin.setPassword("admin");
         admin.setEmail("admin@email.com");
-        admin.setRoles(new ArrayList<>(Arrays.asList(Role.ROLE_ADMIN)));
+        admin.setRole(Role.ROLE_ADMIN);
 
         userService.signup(admin);
 
@@ -79,7 +79,7 @@ public class SpringMain extends SpringBootServletInitializer {
         client.setUsername("client");
         client.setPassword("client");
         client.setEmail("client@email.com");
-        client.setRoles(new ArrayList<>(Arrays.asList(Role.ROLE_CLIENT)));
+        client.setRole(Role.ROLE_CLIENT);
 
         userService.signup(client);
 

@@ -5,7 +5,6 @@ import edu.mit.dos.model.DigitalObject;
 import edu.mit.dos.persistence.DigitalObjectJpaRepository;
 import edu.mit.dos.persistence.FileJpaRepository;
 import edu.mit.dos.persistence.ObjectFilePersistence;
-import edu.mit.dos.repository.UserRepository;
 import edu.mit.dos.storage.StorageInterfaceFactory;
 import edu.mit.dos.util.FileConverter;
 import org.slf4j.Logger;
@@ -21,11 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.*;
 
 @Transactional
 @RestController
@@ -82,9 +77,14 @@ public class ObjectService {
             }
         }
 
-        final List<String> storagePaths = persistToStorage(files);
-        final DigitalObject p = objectFilePersistence.save(storagePaths, object);
-        return String.valueOf(p.getOid());
+        try {
+            final List<String> storagePaths = persistToStorage(files);
+            final DigitalObject p = objectFilePersistence.save(storagePaths, object);
+            return String.valueOf(p.getOid());
+        } catch (IOException e) {
+            logger.error("Error:{}", e);
+            return "fail"; //TODO update
+        }
     }
 
     @RequestMapping(value = "/object", method = RequestMethod.DELETE)
@@ -175,7 +175,7 @@ public class ObjectService {
             fileJpaRepository.deleteByOid(oid);
         } catch (Exception e) {
             logger.error("Error deleting files for oid:{}", oid);
-            return "fail";
+            return "fail"; //TODO
         }
 
         logger.debug("Deleted Files. Current files:{}", fileJpaRepository.findByOid(oid));
@@ -198,17 +198,23 @@ public class ObjectService {
             }
         }
 
-        final List<String> results = persistToStorage(map);
 
-        // Update the database:
-        final DigitalObject p = objectFilePersistence.save(results, object);
+        try {
+            final List<String> results = persistToStorage(map);
 
-        logger.debug("Updated entity:{}", p);
+            // Update the database:
+            final DigitalObject p = objectFilePersistence.save(results, object);
 
-        return "ok"; // todo
+            logger.debug("Updated entity:{}", p);
+
+            return "ok"; // todo
+        } catch (IOException e) {
+            logger.error("Error:", e);
+            return "fail";
+        }
     }
 
-    private List<String> persistToStorage(final Map<String, File> map) {
+    private List<String> persistToStorage(final Map<String, File> map) throws IOException {
 
         final List<String> results = new ArrayList<>();
 
@@ -223,7 +229,14 @@ public class ObjectService {
 
             // Persist to storage:
 
-            final String result = storage.getInstance().putObject(path, f);
+            final String result;
+            try {
+                result = storage.getInstance().putObject(path, f);
+            } catch (IOException e) {
+                logger.error("Error writing to storage:", e);
+                throw e;
+            }
+
             logger.debug("DigitalFile:{} persisted to storage path:{}", path, f);
 
             results.add(result);

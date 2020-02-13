@@ -1,6 +1,5 @@
 package edu.mit.dos.auth;
 
-import edu.mit.dos.model.DigitalObject;
 import edu.mit.dos.service.UserService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,15 +36,13 @@ public class AuthServiceIT {
         final MultiValueMap<String, String> map = getRequestMap();
         final HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, new HttpHeaders());
         final String postBody = this.restTemplate.postForObject("/object", request, String.class);
-        assertThat(postBody.contains("Required String parameter 'username' is not present"));
 
-        final DigitalObject getBody = this.restTemplate.getForObject("/object?oid=" + postBody, DigitalObject.class);
-        assertThat(getBody == null); // TODO update to exception
+        if (postBody == null) {
+            // should be null
+        } else {
+            assertThat(postBody.contains("Forbidden")); //TODO modify with the return status code
+        }
 
-        final MultiValueMap<String, String> updatedMap = new LinkedMultiValueMap<>();
-        final HttpEntity<MultiValueMap<String, String>> updateRequest = new HttpEntity<>(updatedMap, new HttpHeaders());
-        final String patchBody = this.restTemplate.patchForObject("/object", updateRequest, String.class);
-        assertThat(patchBody.contains("Expired or Invalid JWT Token"));
     }
 
     private MultiValueMap<String, String> getRequestMap() {

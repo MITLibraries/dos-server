@@ -65,13 +65,13 @@ public class ObjectServiceIT {
         admin.setUsername(USER_ADMIN);
         admin.setPassword(USER_PASSWORD);
         admin.setEmail(USER_EMAIL);
-        admin.setRoles(new ArrayList<>(Arrays.asList(Role.ROLE_ADMIN)));
+        admin.setRole(Role.ROLE_ADMIN);
         userService.signup(admin);
         final User client = new User();
         client.setUsername(CLIENT_USERNAME);
         client.setPassword(PASSWORD);
         client.setEmail(CLIENT_EMAIL_COM);
-        client.setRoles(new ArrayList<>(Arrays.asList(Role.ROLE_CLIENT)));
+        client.setRole(Role.ROLE_CLIENT);
         userService.signup(client);
 
         // Get the token:
@@ -94,7 +94,7 @@ public class ObjectServiceIT {
         final MultiValueMap<String, String> map = getRequestParameters();
         final HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, new HttpHeaders());
         final String body = this.restTemplate.postForObject("/object", request, String.class);
-        System.out.println("Results:" + body);
+        //System.out.println("Test Results:" + body);
         assertThat(body).isNotNull();
 
         final DigitalObject body2 = this.restTemplate.getForObject("/object?oid=" + body, DigitalObject.class);
@@ -106,8 +106,9 @@ public class ObjectServiceIT {
     public void testPost() {
         final MultiValueMap<String, String> map = getRequestParameters();
         final HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, new HttpHeaders());
-        String body = this.restTemplate.postForObject("/object", request, String.class);
-        assertThat(body).isNotNull();
+        final String body = this.restTemplate.postForObject("/object", request, String.class);
+        //System.out.println("Test POST body:" + body);
+        assertThat(Long.parseLong(body) > 0); // TODO change this when we are returning more info from endpoint
         final DigitalObject body2 = this.restTemplate.getForObject("/object?oid=" + body, DigitalObject.class);
         assertThat(body2.getHandle()).isEqualTo("hdl.net");
         assertThat(body2.getTitle()).isEqualTo("Item Title");
