@@ -67,7 +67,7 @@ public class ObjectService {
 
         for (final String link : targetLinks) {
             try {
-                final String key = identifierFactory.getInstance().generate() + File.separator + item;
+                final String key = identifierFactory.getInstance().generate(); // + File.separator + item;
                 final File f = FileConverter.toFile(link);
                 files.put(key, f);
                 item++;
@@ -189,7 +189,7 @@ public class ObjectService {
         for (final String s : targetLinks) {
             try {
                 final File f = FileConverter.toFile(s);
-                final String key = object.getHandle() + "/" + item;
+                final String key = object.getHandle(); // + "/" + item;
                 map.put(key, f);
                 item++;
             } catch (IOException e) {

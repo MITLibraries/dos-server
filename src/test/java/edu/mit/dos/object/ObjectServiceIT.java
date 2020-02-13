@@ -11,8 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
+import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
@@ -181,6 +180,34 @@ public class ObjectServiceIT {
         final DigitalObject body3 = this.restTemplate.getForObject("/object?oid=" + oid, DigitalObject.class);
         assertThat(body3.getTitle()).isEqualTo("Item Title"); // the original title should remain as is since we didn't supply it
     }
+
+    @Test
+    public void testGetFile() {
+
+        // first post the object:
+
+        final MultiValueMap<String, String> map = getRequestParameters();
+        final HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, new HttpHeaders());
+        final String oid = this.restTemplate.postForObject("/object", request, String.class);
+        assertThat(oid).isNotNull();
+
+        final HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Arrays.asList(MediaType.IMAGE_JPEG));
+
+        final HttpEntity<String> entity = new HttpEntity<String>(headers);
+        final ResponseEntity<byte[]> response = restTemplate.exchange(
+                "/file?oid=" + oid,
+                HttpMethod.GET, entity, byte[].class, "1");
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatusCode().is2xxSuccessful());
+
+        if (response.getBody() != null) { // TODO remove this when the logic in LocalFileSystemImpl is added
+            assertThat(response.getBody().length == 1443858); // TODO change and tie it to the file when we externalize
+        }
+
+    }
+
 
 
     private MultiValueMap<String, String> getRequestParameters() {

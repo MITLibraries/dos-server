@@ -9,4 +9,7 @@ public interface StorageManager {
 
     void deleteObject(String key);
 
+    String getObject(String key);
+
+
 }
