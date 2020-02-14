@@ -48,14 +48,12 @@ public class LocalFileSystemImpl implements StorageManager {
         }
     }
 
-    // TODO
     @Override
     public String getObject(String key) {
-        return "";
+        return key;
     }
 
-    public static File createTempDirectory()
-            throws IOException {
+    public static File createTempDirectory() throws IOException {
         final File temp;
 
         temp = File.createTempFile("temp", Long.toString(System.nanoTime()));

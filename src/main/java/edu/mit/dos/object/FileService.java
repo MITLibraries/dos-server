@@ -45,7 +45,7 @@ public class FileService {
      * @return
      * @throws IOException
      */
-    @GetMapping(value = "/file", produces = MediaType.IMAGE_JPEG_VALUE)
+    @GetMapping(value = "/file", produces = MediaType.APPLICATION_PDF_VALUE)
     public @ResponseBody byte[] getImageWithMediaType(@RequestParam("oid") String oid) throws IOException {
         final DigitalObject retrievedDigitalObject = objectJpaRepository.findByOid(Long.valueOf(oid));
 

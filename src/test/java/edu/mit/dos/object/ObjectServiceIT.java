@@ -4,6 +4,7 @@ import edu.mit.dos.model.DigitalObject;
 import edu.mit.dos.model.Role;
 import edu.mit.dos.model.User;
 import edu.mit.dos.service.UserService;
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +18,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -182,7 +185,7 @@ public class ObjectServiceIT {
     }
 
     @Test
-    public void testGetFile() {
+    public void testGetFile() throws IOException {
 
         // first post the object:
 
@@ -192,9 +195,9 @@ public class ObjectServiceIT {
         assertThat(oid).isNotNull();
 
         final HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Arrays.asList(MediaType.IMAGE_JPEG));
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_PDF));
 
-        final HttpEntity<String> entity = new HttpEntity<String>(headers);
+        final HttpEntity<String> entity = new HttpEntity<>(headers);
         final ResponseEntity<byte[]> response = restTemplate.exchange(
                 "/file?oid=" + oid,
                 HttpMethod.GET, entity, byte[].class, "1");
@@ -202,10 +205,14 @@ public class ObjectServiceIT {
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode().is2xxSuccessful());
 
-        if (response.getBody() != null) { // TODO remove this when the logic in LocalFileSystemImpl is added
-            assertThat(response.getBody().length == 1443858); // TODO change and tie it to the file when we externalize
-        }
+        // System.out.println("Response:" + response);
 
+        if (response.getBody() != null) { // TODO remove this when the logic in LocalFileSystemImpl is added
+            assertThat(response.getHeaders().get("Content-Type").get(0).equals("application/pdf")); // TODO change and tie it to the file when we externalize
+            assertThat(response.getHeaders().get("Content-Length").get(0).equals("1021167")); // TODO change and tie it to the file when we externalize
+        } else {
+            fail("Response body null");
+        }
     }
 
 
@@ -216,7 +223,7 @@ public class ObjectServiceIT {
         map.add("title", "Item Title");
         map.add("metadata_system", "dome");
         map.add("source_system", "archivesspace");
-        map.add("target_links", "https://dome.mit.edu/bitstream/handle/1721.3/176391/249794_cp.jpg?sequence=1");
+        map.add("target_links", "https://dome.mit.edu/bitstream/handle/1721.3/46021/MC665_r14_6M-4371.pdf?sequence=1");
         return map;
     }
 

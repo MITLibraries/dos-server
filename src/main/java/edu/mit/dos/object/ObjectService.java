@@ -58,9 +58,6 @@ public class ObjectService {
         object.setMetadataSource(metadataSystem);
         object.setSourceSystem(sourceSystem);
 
-
-        int item = 0;
-
         // copy the files locally, then copy the files to storage, and then persist to the database:
 
         final Map<String, File> files = new HashMap<>(); // <key, file>
@@ -70,7 +67,6 @@ public class ObjectService {
                 final String key = identifierFactory.getInstance().generate(); // + File.separator + item;
                 final File f = FileConverter.toFile(link);
                 files.put(key, f);
-                item++;
             } catch (IOException e) {
                 logger.error("Error downloading files:{}", e);
                 return "error"; // todo
@@ -180,8 +176,6 @@ public class ObjectService {
 
         logger.debug("Deleted Files. Current files:{}", fileJpaRepository.findByOid(oid));
 
-        int item = 0;
-
         // first copy the files, then copy the files to storage -- kind of like a block chain effect
 
         final Map<String, File> map =new HashMap<>();
@@ -191,7 +185,6 @@ public class ObjectService {
                 final File f = FileConverter.toFile(s);
                 final String key = object.getHandle(); // + "/" + item;
                 map.put(key, f);
-                item++;
             } catch (IOException e) {
                 logger.error("Error downloading files:{}", e);
                 return "error"; // todo
