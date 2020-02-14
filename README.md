@@ -57,12 +57,20 @@ docker pull maven:3.5.3-jdk-8-alpine
 
 docker build -t dos:1.0 .
 
-# now run it:
+# now run it (changing env as appropriate):
 
-docker run -p 8080:8080 dos:1.0
+docker run -e "SPRING_PROFILES_ACTIVE=stage" -p 8080:8080 dos:1.0
 
-# the app should now be live at localhost:8080/dos
- 
+# the app should now be live at http://localhost:8080/dos-server
+
+# if you need to debug, ssh into the container as usual, using the docker id. 
+
+# Example:
+
+sudo docker exec -it 5fd03bdab9f1 /bin/bash
+
+ls /usr/local/tomcat/logs
+
 ```
 
 
