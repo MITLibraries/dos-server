@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
  */
 @Component
 @EnableConfigurationProperties
-@ConfigurationProperties(prefix="serviceConfig")
+@ConfigurationProperties(prefix="config")
 public class ServiceConfig {
 
     @NotNull

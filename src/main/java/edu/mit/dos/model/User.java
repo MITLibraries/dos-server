@@ -2,34 +2,31 @@ package edu.mit.dos.model;
 
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.Size;
 
 @Entity
+@Table(name = "user1")
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @Size(min = 4, max = 255, message = "Minimum username length: 4 characters")
-    @Column(unique = true, nullable = false)
+    //@Size(min = 4, max = 255, message = "Minimum username length: 4 characters")
+    //@Column(unique = true, nullable = false)
+    @Column
     private String username;
 
-    @Column(unique = true, nullable = false)
+    //@Column(unique = true, nullable = false)
+    @Column
     private String email;
 
     @Size(min = 8, message = "Minimum password length: 8 characters")
     private String password;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    List<Role> roles;
+    @Column
+    Role role;
 
     public Integer getId() {
         return id;
@@ -63,21 +60,11 @@ public class User {
         this.password = password;
     }
 
-    public List<Role> getRoles() {
-        return roles;
+    public Role getRole() {
+        return role;
     }
 
-    public void setRoles(List<Role> roles) {
-        this.roles = roles;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "username='" + username + '\'' +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                ", roles=" + roles +
-                '}';
+    public void setRole(Role role) {
+        this.role = role;
     }
 }
