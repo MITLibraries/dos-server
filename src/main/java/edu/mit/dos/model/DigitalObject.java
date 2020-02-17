@@ -28,13 +28,13 @@ public class DigitalObject {
     private Date dateCreated;
 
     @Column(name = "update_date")
-    private Date updateDate;
+    private Date dateUpdated;
 
-    @Column(name = "metadata_system")
+    @Column(name = "metadata_source")
     private String metadataSource;
 
-    @Column(name = "source_system")
-    private String sourceSystem;
+    @Column(name = "content_source")
+    private String contentSource;
 
     @OneToMany
     private List<DigitalFile> files =new ArrayList<>();
@@ -75,12 +75,12 @@ public class DigitalObject {
         this.dateCreated = dateCreated;
     }
 
-    public Date getUpdateDate() {
-        return updateDate;
+    public Date getDateUpdated() {
+        return dateUpdated;
     }
 
-    public void setUpdateDate(Date updateDate) {
-        this.updateDate = updateDate;
+    public void setDateUpdated(Date dateUpdated) {
+        this.dateUpdated = dateUpdated;
     }
 
     public String getMetadataSource() {
@@ -91,12 +91,12 @@ public class DigitalObject {
         this.metadataSource = metadataSource;
     }
 
-    public String getSourceSystem() {
-        return sourceSystem;
+    public String getContentSource() {
+        return contentSource;
     }
 
-    public void setSourceSystem(String sourceSystem) {
-        this.sourceSystem = sourceSystem;
+    public void setContentSource(String contentSource) {
+        this.contentSource = contentSource;
     }
 
     public List<DigitalFile> getFiles() {
@@ -114,9 +114,9 @@ public class DigitalObject {
                 ", title='" + title + '\'' +
                 ", handle='" + handle + '\'' +
                 ", dateCreated=" + dateCreated +
-                ", updateDate=" + updateDate +
+                ", dateUpdated=" + dateUpdated +
                 ", metadataSource='" + metadataSource + '\'' +
-                ", sourceSystem='" + sourceSystem + '\'' +
+                ", contentSource='" + contentSource + '\'' +
                 '}';
     }
 }

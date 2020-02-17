@@ -47,16 +47,16 @@ public class ObjectService {
     public String create(@RequestParam("handle") String handle,
                          @RequestParam("title") String title,
                          @RequestParam("target_links") List<String> targetLinks,
-                         @RequestParam("source_system") String sourceSystem,
-                         @RequestParam("metadata_system") String metadataSystem) {
+                         @RequestParam("content_source") String contentSource,
+                         @RequestParam("metadata_source") String metadataSystem) {
 
         final DigitalObject object = new DigitalObject();
         object.setHandle(handle);
         object.setTitle(title);
         object.setDateCreated(new Date());
-        object.setUpdateDate(new Date());
+        object.setDateUpdated(new Date());
         object.setMetadataSource(metadataSystem);
-        object.setSourceSystem(sourceSystem);
+        object.setContentSource(contentSource);
 
         // copy the files locally, then copy the files to storage, and then persist to the database:
 
@@ -116,8 +116,8 @@ public class ObjectService {
                          @RequestParam(value = "handle", required = false) String handle,
                          @RequestParam(value = "title", required = false) String title,
                          @RequestParam(value = "target_links", required = false) List<String> targetLinks,
-                         @RequestParam(value = "source_system", required = false) String sourceSystem,
-                         @RequestParam(value = "metadata_system", required = false) String metadataSystem) {
+                         @RequestParam(value = "content_source", required = false) String contentSource,
+                         @RequestParam(value = "metadata_source", required = false) String metadataSystem) {
 
         logger.debug("Updating for object id:{}", oidStr);
 
@@ -137,10 +137,10 @@ public class ObjectService {
             return "Invalid attribute (title) supplied for PATCH";
         }
 
-        object.setUpdateDate(new Date());
+        object.setDateUpdated(new Date());
 
-        if (!sourceSystem.isEmpty()) { //tbd can do validation here. if so move to signature with the annotation
-            object.setSourceSystem(sourceSystem);
+        if (!contentSource.isEmpty()) { //tbd can do validation here. if so move to signature with the annotation
+            object.setContentSource(contentSource);
         } else {
             return "Invalid attribute (source) supplied for PATCH";
         }
