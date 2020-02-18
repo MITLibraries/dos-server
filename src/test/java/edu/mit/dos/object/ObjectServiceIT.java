@@ -4,6 +4,7 @@ import edu.mit.dos.model.DigitalObject;
 import edu.mit.dos.model.Role;
 import edu.mit.dos.model.User;
 import edu.mit.dos.service.UserService;
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,13 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
+import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -140,8 +142,8 @@ public class ObjectServiceIT {
         updatedMap.add("oid", oid); // the object id to update
         updatedMap.add("handle", "test.update.hdl.net");
         updatedMap.add("title", "Item Title Updated");
-        updatedMap.add("metadata_system", "dome");
-        updatedMap.add("source_system", "archivesspace");
+        updatedMap.add("metadata_source", "dome");
+        updatedMap.add("content_source", "archivesspace");
         updatedMap.add("target_links", "https://dome.mit.edu/bitstream/handle/1721.3/21882/112045_sv.jpg?sequence=2");
         final HttpEntity<MultiValueMap<String, String>> updateRequest = new HttpEntity<>(updatedMap, new HttpHeaders());
         final String body2 = this.restTemplate.patchForObject("/object", updateRequest, String.class);
@@ -158,8 +160,8 @@ public class ObjectServiceIT {
         final MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add("handle", "test.post.hdl.net");
         map.add("title", "Item Title");
-        map.add("metadata_system", "dome");
-        map.add("source_system", "archivesspace");
+        map.add("metadata_source", "dome");
+        map.add("content_source", "archivesspace");
         map.add("target_links", "https://dome.mit.edu/bitstream/handle/1721.3/176391/249794_cp.jpg?sequence=1");
         final HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, new HttpHeaders());
         final String oid = this.restTemplate.postForObject("/object", request, String.class);
@@ -172,8 +174,8 @@ public class ObjectServiceIT {
         updatedMap.add("oid", oid); // the object id to update
         updatedMap.add("handle", "test.update.hdl.net");
         updatedMap.add("title", "");
-        updatedMap.add("metadata_system", "dome");
-        updatedMap.add("source_system", "archivesspace");
+        updatedMap.add("metadata_source", "dome");
+        updatedMap.add("content_source", "archivesspace");
         updatedMap.add("target_links", "https://dome.mit.edu/bitstream/handle/1721.3/21882/112045_sv.jpg?sequence=2");
         final HttpEntity<MultiValueMap<String, String>> updateRequest = new HttpEntity<>(updatedMap, new HttpHeaders());
         final String body2 = this.restTemplate.patchForObject("/object", updateRequest, String.class);
@@ -182,14 +184,46 @@ public class ObjectServiceIT {
         assertThat(body3.getTitle()).isEqualTo("Item Title"); // the original title should remain as is since we didn't supply it
     }
 
+    @Test
+    public void testGetFile() throws IOException {
+
+        // first post the object:
+
+        final MultiValueMap<String, String> map = getRequestParameters();
+        final HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, new HttpHeaders());
+        final String oid = this.restTemplate.postForObject("/object", request, String.class);
+        assertThat(oid).isNotNull();
+
+        final HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_PDF));
+
+        final HttpEntity<String> entity = new HttpEntity<>(headers);
+        final ResponseEntity<byte[]> response = restTemplate.exchange(
+                "/file?oid=" + oid,
+                HttpMethod.GET, entity, byte[].class, "1");
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatusCode().is2xxSuccessful());
+
+        // System.out.println("Response:" + response);
+
+        if (response.getBody() != null) { // TODO remove this when the logic in LocalFileSystemImpl is added
+            assertThat(response.getHeaders().get("Content-Type").get(0).equals("application/pdf")); // TODO change and tie it to the file when we externalize
+            assertThat(response.getHeaders().get("Content-Length").get(0).equals("1021167")); // TODO change and tie it to the file when we externalize
+        } else {
+            fail("Response body null");
+        }
+    }
+
+
 
     private MultiValueMap<String, String> getRequestParameters() {
         final MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add("handle", "hdl.net");
         map.add("title", "Item Title");
-        map.add("metadata_system", "dome");
-        map.add("source_system", "archivesspace");
-        map.add("target_links", "https://dome.mit.edu/bitstream/handle/1721.3/176391/249794_cp.jpg?sequence=1");
+        map.add("metadata_source", "dome");
+        map.add("content_source", "archivesspace");
+        map.add("target_links", "https://dome.mit.edu/bitstream/handle/1721.3/46021/MC665_r14_6M-4371.pdf?sequence=1");
         return map;
     }
 

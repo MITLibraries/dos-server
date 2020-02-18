@@ -49,8 +49,8 @@ public class AuthServiceIT {
         final MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add("handle", "hdl.net");
         map.add("title", "Item Title");
-        map.add("metadata_system", "dome");
-        map.add("source_system", "archivesspace");
+        map.add("metadata_source", "dome");
+        map.add("content_source", "archivesspace");
         map.add("target_links", "https://dome.mit.edu/bitstream/handle/1721.3/176391/249794_cp.jpg?sequence=1");
         return map;
     }

@@ -47,19 +47,16 @@ public class ObjectService {
     public String create(@RequestParam("handle") String handle,
                          @RequestParam("title") String title,
                          @RequestParam("target_links") List<String> targetLinks,
-                         @RequestParam("source_system") String sourceSystem,
-                         @RequestParam("metadata_system") String metadataSystem) {
+                         @RequestParam("content_source") String contentSource,
+                         @RequestParam("metadata_source") String metadataSystem) {
 
         final DigitalObject object = new DigitalObject();
         object.setHandle(handle);
         object.setTitle(title);
         object.setDateCreated(new Date());
-        object.setUpdateDate(new Date());
+        object.setDateUpdated(new Date());
         object.setMetadataSource(metadataSystem);
-        object.setSourceSystem(sourceSystem);
-
-
-        int item = 0;
+        object.setContentSource(contentSource);
 
         // copy the files locally, then copy the files to storage, and then persist to the database:
 
@@ -67,10 +64,9 @@ public class ObjectService {
 
         for (final String link : targetLinks) {
             try {
-                final String key = identifierFactory.getInstance().generate() + File.separator + item;
+                final String key = identifierFactory.getInstance().generate(); // + File.separator + item;
                 final File f = FileConverter.toFile(link);
                 files.put(key, f);
-                item++;
             } catch (IOException e) {
                 logger.error("Error downloading files:{}", e);
                 return "error"; // todo
@@ -120,8 +116,8 @@ public class ObjectService {
                          @RequestParam(value = "handle", required = false) String handle,
                          @RequestParam(value = "title", required = false) String title,
                          @RequestParam(value = "target_links", required = false) List<String> targetLinks,
-                         @RequestParam(value = "source_system", required = false) String sourceSystem,
-                         @RequestParam(value = "metadata_system", required = false) String metadataSystem) {
+                         @RequestParam(value = "content_source", required = false) String contentSource,
+                         @RequestParam(value = "metadata_source", required = false) String metadataSystem) {
 
         logger.debug("Updating for object id:{}", oidStr);
 
@@ -141,10 +137,10 @@ public class ObjectService {
             return "Invalid attribute (title) supplied for PATCH";
         }
 
-        object.setUpdateDate(new Date());
+        object.setDateUpdated(new Date());
 
-        if (!sourceSystem.isEmpty()) { //tbd can do validation here. if so move to signature with the annotation
-            object.setSourceSystem(sourceSystem);
+        if (!contentSource.isEmpty()) { //tbd can do validation here. if so move to signature with the annotation
+            object.setContentSource(contentSource);
         } else {
             return "Invalid attribute (source) supplied for PATCH";
         }
@@ -180,8 +176,6 @@ public class ObjectService {
 
         logger.debug("Deleted Files. Current files:{}", fileJpaRepository.findByOid(oid));
 
-        int item = 0;
-
         // first copy the files, then copy the files to storage -- kind of like a block chain effect
 
         final Map<String, File> map =new HashMap<>();
@@ -189,9 +183,8 @@ public class ObjectService {
         for (final String s : targetLinks) {
             try {
                 final File f = FileConverter.toFile(s);
-                final String key = object.getHandle() + "/" + item;
+                final String key = object.getHandle(); // + "/" + item;
                 map.put(key, f);
-                item++;
             } catch (IOException e) {
                 logger.error("Error downloading files:{}", e);
                 return "error"; // todo

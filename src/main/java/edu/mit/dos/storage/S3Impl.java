@@ -9,6 +9,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
 import edu.mit.dos.ServiceConfig;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +64,21 @@ public class S3Impl implements StorageManager {
         } catch (Exception e) {
             logger.error("Error writing to S3", e);
         }
+    }
+
+    @Override
+    public String getObject(final String key) {
+        final S3Object obj = util.getObject(serviceConfig.getBucket(), key);
+        final S3ObjectInputStream inputStream = obj.getObjectContent();
+
+        try {
+            final File tempFile = File.createTempFile("dos-", "-tmp");
+            FileUtils.copyInputStreamToFile(inputStream, tempFile);
+            return tempFile.getAbsolutePath();
+        } catch (IOException e) {
+            logger.error("Error downloading file:", e);
+        }
+        return "";
     }
 
     /**
