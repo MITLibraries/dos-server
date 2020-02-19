@@ -32,18 +32,11 @@ public class S3Impl implements StorageManager {
 
     @PostConstruct
     public void generate() {
-
-        logger.debug("Service username:{}", serviceConfig.getAccessKey());
-        logger.debug("Service password:{}", serviceConfig.getSecretKey());
         logger.debug("Service url:{}", serviceConfig.getBucket());
 
         try {
-            final AWSCredentials credentials =
-                    new BasicAWSCredentials(serviceConfig.getAccessKey(), serviceConfig.getSecretKey());
 
-            s3client = AmazonS3ClientBuilder
-                    .standard()
-                    .withCredentials(new AWSStaticCredentialsProvider(credentials))
+            s3client = AmazonS3ClientBuilder.standard()
                     .withRegion(Regions.US_EAST_1)
                     .build();
 
