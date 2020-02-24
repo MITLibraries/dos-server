@@ -1,6 +1,7 @@
 package edu.mit.dos.persistence;
 
 import edu.mit.dos.model.DigitalObject;
+import edu.mit.dos.model.DigitalObjectBuilder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +29,9 @@ public class ObjectFilePersistenceIT {
     // Tests that the associated file entity is saved with the digital object
     @Test
     public void testObjectAndFileSave() {
-        final DigitalObject digitalObject = new DigitalObject();
-        digitalObject.setTitle("test");
+        final DigitalObject digitalObject = new DigitalObjectBuilder()
+                .setTitle("test")
+                .createDigitalObject();
 
         final List<String> paths = new ArrayList<>();
         paths.add("/tmp/test");

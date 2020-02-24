@@ -2,6 +2,7 @@ package edu.mit.dos.object;
 
 import edu.mit.dos.model.DigitalFile;
 import edu.mit.dos.model.DigitalObject;
+import edu.mit.dos.model.DigitalObjectBuilder;
 import edu.mit.dos.persistence.DigitalObjectJpaRepository;
 import edu.mit.dos.persistence.FileJpaRepository;
 import edu.mit.dos.persistence.ObjectFilePersistence;
@@ -50,13 +51,14 @@ public class ObjectService {
                          @RequestParam("content_source") String contentSource,
                          @RequestParam("metadata_source") String metadataSystem) {
 
-        final DigitalObject object = new DigitalObject();
-        object.setHandle(handle);
-        object.setTitle(title);
-        object.setDateCreated(new Date());
-        object.setDateUpdated(new Date());
-        object.setMetadataSource(metadataSystem);
-        object.setContentSource(contentSource);
+        final DigitalObject object = new DigitalObjectBuilder()
+                .setHandle(handle)
+                .setTitle(title)
+                .setDateCreated(new Date())
+                .setDateUpdated(new Date())
+                .setMetadataSource(metadataSystem)
+                .setContentSource(contentSource)
+                .createDigitalObject();
 
         // copy the files locally, then copy the files to storage, and then persist to the database:
 

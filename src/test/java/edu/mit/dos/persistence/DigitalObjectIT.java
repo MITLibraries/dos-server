@@ -1,6 +1,7 @@
 package edu.mit.dos.persistence;
 
 import edu.mit.dos.model.DigitalObject;
+import edu.mit.dos.model.DigitalObjectBuilder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +26,9 @@ public class DigitalObjectIT {
 
     @Test
     public void testById() {
-        DigitalObject digitalObject = new DigitalObject();
-        digitalObject.setHandle("https://hdl.net");
+        DigitalObject digitalObject = new DigitalObjectBuilder()
+                .setHandle("https://hdl.net")
+                .createDigitalObject();
         entityManager.persist(digitalObject);
         entityManager.flush();
         DigitalObject digitalObject1= digitalObjectJpaRepository.findByHandle("https://hdl.net");

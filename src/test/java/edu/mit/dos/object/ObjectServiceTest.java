@@ -1,6 +1,7 @@
 package edu.mit.dos.object;
 
 import edu.mit.dos.model.DigitalObject;
+import edu.mit.dos.model.DigitalObjectBuilder;
 import edu.mit.dos.persistence.DigitalObjectJpaRepository;
 import edu.mit.dos.storage.StorageInterfaceFactory;
 import edu.mit.dos.storage.S3Impl;
@@ -53,7 +54,7 @@ public class ObjectServiceTest {
 
     @Test
     public void testGet() throws Exception {
-        DigitalObject digitalObject = new DigitalObject();
+        DigitalObject digitalObject = new DigitalObjectBuilder().createDigitalObject();
         digitalObject.setOid(1222);
         when(objectJpaRepository.findByOid(1222)).thenReturn(digitalObject);
         mockMvc.perform(get("/object").param("oid", "1222"))
@@ -65,7 +66,7 @@ public class ObjectServiceTest {
 
     @Test
     public void testDelete() throws Exception {
-        DigitalObject digitalObject = new DigitalObject();
+        DigitalObject digitalObject = new DigitalObjectBuilder().createDigitalObject();
         digitalObject.setOid(1222);
         when(s3Manager.getInstance()).thenReturn(s3Impl);
         when(objectJpaRepository.findByOid(1222)).thenReturn(digitalObject);
