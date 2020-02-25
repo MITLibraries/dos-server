@@ -4,6 +4,8 @@ import edu.mit.dos.model.DigitalObject;
 import edu.mit.dos.model.Role;
 import edu.mit.dos.model.User;
 import edu.mit.dos.service.UserService;
+import net.minidev.json.JSONObject;
+import net.minidev.json.JSONValue;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -98,8 +100,9 @@ public class ObjectServiceIT {
         final String body = this.restTemplate.postForObject("/object", request, String.class);
         //System.out.println("Test Results:" + body);
         assertThat(body).isNotNull();
-
-        final DigitalObject body2 = this.restTemplate.getForObject("/object?oid=" + body, DigitalObject.class);
+        JSONObject object = (JSONObject) JSONValue.parse(body);
+        String oid = object.getAsString("oid");
+        final DigitalObject body2 = this.restTemplate.getForObject("/object?oid=" + oid, DigitalObject.class);
         assertThat(body2.getHandle()).isEqualTo("hdl.net");
         assertThat(body2.getTitle()).isEqualTo("Item Title");
     }
@@ -110,8 +113,10 @@ public class ObjectServiceIT {
         final HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, new HttpHeaders());
         final String body = this.restTemplate.postForObject("/object", request, String.class);
         //System.out.println("Test POST body:" + body);
-        assertThat(Long.parseLong(body) > 0); // TODO change this when we are returning more info from endpoint
-        final DigitalObject body2 = this.restTemplate.getForObject("/object?oid=" + body, DigitalObject.class);
+        JSONObject object = (JSONObject) JSONValue.parse(body);
+        String oid = object.getAsString("oid");
+        assertThat(body).isNotNull(); // TODO change this when we are returning more info from endpoint
+        final DigitalObject body2 = this.restTemplate.getForObject("/object?oid=" + oid, DigitalObject.class);
         assertThat(body2.getHandle()).isEqualTo("hdl.net");
         assertThat(body2.getTitle()).isEqualTo("Item Title");
     }
@@ -122,8 +127,10 @@ public class ObjectServiceIT {
         final HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, new HttpHeaders());
         String body = this.restTemplate.postForObject("/object", request, String.class);
         assertThat(body).isNotNull();
-        this.restTemplate.delete("/object?oid=" + body, DigitalObject.class);
-        final DigitalObject body2 = this.restTemplate.getForObject("/object?oid=" + body, DigitalObject.class);
+        JSONObject object = (JSONObject) JSONValue.parse(body);
+        String oid = object.getAsString("oid");
+        this.restTemplate.delete("/object?oid=" + oid, DigitalObject.class);
+        final DigitalObject body2 = this.restTemplate.getForObject("/object?oid=" + oid, DigitalObject.class);
         assertThat(body2.getOid()).isEqualTo(0);
     }
 
@@ -132,8 +139,10 @@ public class ObjectServiceIT {
         // first post the object:
 
         final MultiValueMap<String, String> map = getRequestParameters();
-        final HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, new HttpHeaders());
-        final String oid = this.restTemplate.postForObject("/object", request, String.class);
+        final HttpEntity    <MultiValueMap<String, String>> request = new HttpEntity<>(map, new HttpHeaders());
+        final String body = this.restTemplate.postForObject("/object", request, String.class);
+        JSONObject object = (JSONObject) JSONValue.parse(body);
+        String oid = object.getAsString("oid");
         assertThat(oid).isNotNull();
 
         // now update it:
@@ -164,7 +173,9 @@ public class ObjectServiceIT {
         map.add("content_source", "archivesspace");
         map.add("target_links", "https://dome.mit.edu/bitstream/handle/1721.3/176391/249794_cp.jpg?sequence=1");
         final HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, new HttpHeaders());
-        final String oid = this.restTemplate.postForObject("/object", request, String.class);
+        final String body = this.restTemplate.postForObject("/object", request, String.class);
+        JSONObject object = (JSONObject) JSONValue.parse(body);
+        String oid = object.getAsString("oid");
         assertThat(oid).isNotNull();
 
 
@@ -191,7 +202,9 @@ public class ObjectServiceIT {
 
         final MultiValueMap<String, String> map = getRequestParameters();
         final HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, new HttpHeaders());
-        final String oid = this.restTemplate.postForObject("/object", request, String.class);
+        final String body = this.restTemplate.postForObject("/object", request, String.class);
+        JSONObject object = (JSONObject) JSONValue.parse(body);
+        String oid = object.getAsString("oid");
         assertThat(oid).isNotNull();
 
         final HttpHeaders headers = new HttpHeaders();
