@@ -27,8 +27,8 @@ target/
 *.prop
 tmp/
 **/connection.props
-**/application-stage.properties
-
+**/application-postgres.properties
+src/test/resources/application-stage.properties
 out/
 .gradle/
 build/

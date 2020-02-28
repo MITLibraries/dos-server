@@ -29,6 +29,12 @@ public class ServiceConfig {
     @NotNull
     private String mode;
 
+    @NotNull
+    private String adminPassword;
+
+    @NotNull
+    private String clientPassword;
+
     public String getBucket() {
         return bucket;
     }
@@ -67,5 +73,21 @@ public class ServiceConfig {
 
     public void setMode(String mode) {
         this.mode = mode;
+    }
+
+    public String getAdminPassword() {
+        return adminPassword;
+    }
+
+    public void setAdminPassword(String adminPassword) {
+        this.adminPassword = adminPassword;
+    }
+
+    public String getClientPassword() {
+        return clientPassword;
+    }
+
+    public void setClientPassword(String clientPassword) {
+        this.clientPassword = clientPassword;
     }
 }
