@@ -2,6 +2,7 @@ package edu.mit.dos;
 
 import edu.mit.dos.model.Role;
 import edu.mit.dos.model.User;
+import edu.mit.dos.repository.UserRepository;
 import edu.mit.dos.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,9 @@ public class SpringMain  {
 
     @Autowired(required = false)
     ServiceConfig config;
+
+    @Autowired(required = false)
+    UserRepository userRepository;
 
 
     public static void main(String[] args) {
@@ -67,21 +71,32 @@ public class SpringMain  {
 
         System.out.println("Warning: Spring test mode. Adding users.");
 
-        final User admin = new User();
-        admin.setUsername("admin");
-        admin.setPassword("admin");
-        admin.setEmail("admin@email.com");
-        admin.setRole(Role.ROLE_ADMIN);
+        if (userRepository.findByUsername("admin") == null) {
 
-        userService.signup(admin);
+            final User admin = new User();
+            admin.setUsername("admin");
+            admin.setPassword(config.getAdminPassword());
+            admin.setEmail("admin@email.com");
+            admin.setRole(Role.ROLE_ADMIN);
 
-        final User client = new User();
-        client.setUsername("client");
-        client.setPassword("client");
-        client.setEmail("client@email.com");
-        client.setRole(Role.ROLE_CLIENT);
+            userService.signup(admin);
 
-        userService.signup(client);
+        } else {
+            userService.refresh("admin");
+        }
+
+
+        if (userRepository.findByUsername("client") == null) {
+            final User client = new User();
+            client.setUsername("client");
+            client.setPassword(config.getClientPassword());
+            client.setEmail("client@email.com");
+            client.setRole(Role.ROLE_CLIENT);
+
+            userService.signup(client);
+        } else {
+            userService.refresh("client");
+        }
 
         System.out.println("Warning: Spring test mode. Users added.");
 
