@@ -41,6 +41,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/users/signup").permitAll()//
                 .antMatchers("/h2-console/**/**").permitAll()
                 .antMatchers("/file").permitAll()
+                .antMatchers("/").permitAll()
                 // Disallow everything else..
                 .anyRequest().authenticated();
 
