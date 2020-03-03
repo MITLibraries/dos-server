@@ -59,7 +59,7 @@ docker build -t dos:1.0 .
 
 # now run it (changing env as appropriate):
 
-docker run -e "SPRING_PROFILES_ACTIVE=stage" -p 8080:8080 dos:1.0
+docker run -e "SPRING_PROFILES_ACTIVE=dev" -p 8080:8080 dos:1.0
 
 # the app should now be live at http://localhost:8080/dos-server
 
