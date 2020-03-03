@@ -81,7 +81,7 @@ public class JwtTokenProvider {
             String s = bearerToken.substring(7); //FIXME buggy for tests?
             s = s.trim();
             s = s.replace(": ", "");
-            System.out.println("Resolved token=" + s);
+            //System.out.println("Resolved token=" + s);
             return s;
         }
         return null;

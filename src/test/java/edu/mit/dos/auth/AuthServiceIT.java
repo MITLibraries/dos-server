@@ -42,7 +42,6 @@ public class AuthServiceIT {
         } else {
             assertThat(postBody.contains("Forbidden")); //TODO modify with the return status code
         }
-
     }
 
     private MultiValueMap<String, String> getRequestMap() {
