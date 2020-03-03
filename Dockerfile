@@ -5,6 +5,6 @@ RUN apt-get install -y maven
 ADD ./ /dos/
 WORKDIR /dos
 RUN ["mvn", "package", "-DskipTests"]
-RUN cp target/dos-server-1.0-SNAPSHOT.war /usr/local/tomcat/webapps/dos-server.war
+RUN cp target/dos-server-1.0-SNAPSHOT.war /usr/local/tomcat/webapps/ROOT.war
 WORKDIR /usr/local/tomcat
 CMD ["catalina.sh","run"]
