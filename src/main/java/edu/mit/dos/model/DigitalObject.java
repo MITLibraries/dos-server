@@ -1,9 +1,12 @@
 package edu.mit.dos.model;
 
+import org.json.simple.JSONObject;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.StringJoiner;
 
 /**
  * Representation of a digital object
@@ -117,6 +120,18 @@ public class DigitalObject {
                 ", dateUpdated=" + dateUpdated +
                 ", metadataSource='" + metadataSource + '\'' +
                 ", contentSource='" + contentSource + '\'' +
+                ", files=" + files +
                 '}';
+    }
+
+    public String postResponse() {
+        JSONObject response = new JSONObject();
+        response.put("oid", oid);
+        StringJoiner paths = new StringJoiner(",", "[", "]");
+        for (DigitalFile file : files){
+            String path = file.getPath();
+            paths.add("\"" + path + "\"");}
+        response.put("files", paths);
+        return response.toJSONString();
     }
 }

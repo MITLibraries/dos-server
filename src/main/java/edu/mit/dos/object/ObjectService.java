@@ -76,7 +76,8 @@ public class ObjectService {
         try {
             final List<String> storagePaths = persistToStorage(files);
             final DigitalObject p = objectFilePersistence.save(storagePaths, object);
-            return String.valueOf(p.getOid());
+            return String.valueOf(p.postResponse());
+
         } catch (IOException e) {
             logger.error("Error:{}", e);
             return "fail"; //TODO update

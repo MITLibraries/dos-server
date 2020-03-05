@@ -90,6 +90,7 @@ public class DigitalFile {
                 ", type=" + type +
                 ", size=" + size +
                 ", checksum='" + checksum +
+                ", path='" + path +
                 '}';
     }
 }
