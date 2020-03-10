@@ -46,6 +46,15 @@ public class DigitalObject {
 
     }
 
+    public DigitalObject(String title, String handle, Date dateCreated, Date dateUpdated, String metadataSource, String contentSource) {
+        this.title = title;
+        this.handle = handle;
+        this.dateCreated = dateCreated;
+        this.dateUpdated = dateUpdated;
+        this.metadataSource = metadataSource;
+        this.contentSource = contentSource;
+    }
+
     public long getOid() {
         return oid;
     }
