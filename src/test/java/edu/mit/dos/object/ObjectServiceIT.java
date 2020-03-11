@@ -6,7 +6,6 @@ import edu.mit.dos.model.User;
 import edu.mit.dos.service.UserService;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
-import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,14 +13,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -95,8 +97,11 @@ public class ObjectServiceIT {
 
     @Test
     public void testGet() {
-        final MultiValueMap<String, String> map = getRequestParameters();
-        final HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, new HttpHeaders());
+        // first post the object
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        final MultiValueMap<String, Object> map = getRequestParameters2();
+        final HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(map, headers);
         final String body = this.restTemplate.postForObject("/object", request, String.class);
         //System.out.println("Test Results:" + body);
         assertThat(body).isNotNull();
@@ -109,12 +114,16 @@ public class ObjectServiceIT {
 
     @Test
     public void testPost() {
-        final MultiValueMap<String, String> map = getRequestParameters();
-        final HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, new HttpHeaders());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        final MultiValueMap<String, Object> map = getRequestParameters2();
+        final HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(map, headers);
         final String body = this.restTemplate.postForObject("/object", request, String.class);
-        //System.out.println("Test POST body:" + body);
-        JSONObject object = (JSONObject) JSONValue.parse(body);
-        String oid = object.getAsString("oid");
+        System.out.println("body" + body);
+
+        final JSONObject object = (JSONObject) JSONValue.parse(body);
+        final String oid = object.getAsString("oid");
         assertThat(body).isNotNull(); // TODO change this when we are returning more info from endpoint
         final DigitalObject body2 = this.restTemplate.getForObject("/object?oid=" + oid, DigitalObject.class);
         assertThat(body2.getHandle()).isEqualTo("hdl.net");
@@ -138,8 +147,11 @@ public class ObjectServiceIT {
     public void testPatch() {
         // first post the object:
 
-        final MultiValueMap<String, String> map = getRequestParameters();
-        final HttpEntity    <MultiValueMap<String, String>> request = new HttpEntity<>(map, new HttpHeaders());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        final MultiValueMap<String, Object> map = getRequestParameters2();
+        final HttpEntity    <MultiValueMap<String, Object>> request = new HttpEntity<>(map, headers);
         final String body = this.restTemplate.postForObject("/object", request, String.class);
         JSONObject object = (JSONObject) JSONValue.parse(body);
         String oid = object.getAsString("oid");
@@ -166,13 +178,10 @@ public class ObjectServiceIT {
     public void testPatchUnsucessful() {
         // first post the object:
 
-        final MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-        map.add("handle", "test.post.hdl.net");
-        map.add("title", "Item Title");
-        map.add("metadata_source", "dome");
-        map.add("content_source", "archivesspace");
-        map.add("target_links", "https://dome.mit.edu/bitstream/handle/1721.3/176391/249794_cp.jpg?sequence=1");
-        final HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, new HttpHeaders());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        final MultiValueMap<String, Object> map = getRequestParameters2();
+        final HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(map, headers);
         final String body = this.restTemplate.postForObject("/object", request, String.class);
         JSONObject object = (JSONObject) JSONValue.parse(body);
         String oid = object.getAsString("oid");
@@ -200,14 +209,17 @@ public class ObjectServiceIT {
 
         // first post the object:
 
-        final MultiValueMap<String, String> map = getRequestParameters();
-        final HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, new HttpHeaders());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        final MultiValueMap<String, Object> map = getRequestParameters2();
+        final HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(map, headers);
         final String body = this.restTemplate.postForObject("/object", request, String.class);
         JSONObject object = (JSONObject) JSONValue.parse(body);
         String oid = object.getAsString("oid");
         assertThat(oid).isNotNull();
 
-        final HttpHeaders headers = new HttpHeaders();
+        headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_PDF));
 
         final HttpEntity<String> entity = new HttpEntity<>(headers);
@@ -228,8 +240,6 @@ public class ObjectServiceIT {
         }
     }
 
-
-
     private MultiValueMap<String, String> getRequestParameters() {
         final MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add("handle", "hdl.net");
@@ -240,5 +250,26 @@ public class ObjectServiceIT {
         return map;
     }
 
+    private MultiValueMap<String, Object> getRequestParameters2() {
+        final MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
+        map.add("handle", "hdl.net");
+        map.add("title", "Item Title");
+        map.add("metadata_source", "dome");
+        map.add("content_source", "archivesspace");
+        try {
+            map.add("file", getTestFile());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return map;
+    }
+
+
+    public static Resource getTestFile() throws IOException {
+        Path testFile = Files.createTempFile("test-file", ".txt");
+        System.out.println("Creating and Uploading Test File: " + testFile);
+        Files.write(testFile, "Hello World !!, This is a test file.".getBytes());
+        return new FileSystemResource(testFile.toFile());
+    }
 
 }

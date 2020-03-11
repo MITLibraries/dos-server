@@ -8,6 +8,7 @@ import edu.mit.dos.persistence.FileJpaRepository;
 import edu.mit.dos.persistence.ObjectFilePersistence;
 import edu.mit.dos.storage.StorageInterfaceFactory;
 import edu.mit.dos.util.FileConverter;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 
 import java.io.File;
@@ -45,11 +47,11 @@ public class ObjectService {
     private ObjectFilePersistence objectFilePersistence;
 
     @RequestMapping(value = "/object", method = RequestMethod.POST)
-    public String create(@RequestParam("handle") String handle,
-                         @RequestParam("title") String title,
-                         @RequestParam("target_links") List<String> targetLinks,
-                         @RequestParam("content_source") String contentSource,
-                         @RequestParam("metadata_source") String metadataSystem) {
+    public String create(@RequestParam(value = "handle", required = false) String handle,
+                         @RequestParam(value = "title", required = false) String title,
+                         @RequestParam(value = "content_source", required = false) String contentSource,
+                         @RequestParam(value = "metadata_source", required = false) String metadataSystem,
+                         @RequestParam(value = "file", required = false) MultipartFile target) {
 
         final DigitalObject object = new DigitalObjectBuilder()
                 .setHandle(handle)
@@ -63,23 +65,20 @@ public class ObjectService {
         // copy the files locally, then copy the files to storage, and then persist to the database:
 
         final Map<String, File> files = new HashMap<>(); // <key, file>
+        final String key = identifierFactory.getInstance().generate(); // + File.separator + item;
 
-        for (final String link : targetLinks) {
-            try {
-                final String key = identifierFactory.getInstance().generate(); // + File.separator + item;
-                final File f = FileConverter.toFile(link);
-                files.put(key, f);
-            } catch (IOException e) {
-                logger.error("Error downloading files:{}", e);
-                return "error"; // todo
-            }
+        try {
+            final File file = File.createTempFile("dos-", "-ingest");
+            FileUtils.copyInputStreamToFile(target.getInputStream(), file);
+            files.put(key, file);
+        } catch (IOException e) {
+            logger.error("Error creating file:{}", e);
         }
 
         try {
             final List<String> storagePaths = persistToStorage(files);
             final DigitalObject p = objectFilePersistence.save(storagePaths, object);
             return String.valueOf(p.postResponse());
-
         } catch (IOException e) {
             logger.error("Error:{}", e);
             return "fail"; //TODO update
@@ -105,6 +104,7 @@ public class ObjectService {
     @RequestMapping(value = "/object", method = RequestMethod.GET)
     public @ResponseBody
     DigitalObject getObject(@RequestParam("oid") String oid) {
+        logger.debug("Finding oid:{}", oid);
         final DigitalObject retrievedDigitalObject = objectJpaRepository.findByOid(Long.valueOf(oid));
         if (retrievedDigitalObject == null) {
             logger.debug("Error - digital object not found:{}", oid);
@@ -240,5 +240,6 @@ public class ObjectService {
 
         return results;
     }
+
 
 }
