@@ -30,7 +30,7 @@ public class FileService {
     private static final Logger logger = LoggerFactory.getLogger(FileService.class);
 
     @Autowired
-    private DigitalObjectJpaRepository objectJpaRepository;
+    private FileJpaRepository fileJpaRepository;
 
     @Autowired
     private StorageInterfaceFactory storage;
@@ -39,36 +39,24 @@ public class FileService {
     private ServiceConfig serviceConfig;
 
     /**
-     * Retrieves files by oid
+     * Retrieves files by fid
      *
-     * @param oid
+     * @param fid
      * @return
      * @throws IOException
      */
     @GetMapping(value = "/file", produces = MediaType.APPLICATION_PDF_VALUE)
-    public @ResponseBody byte[] getImageWithMediaType(@RequestParam("oid") String oid) throws IOException {
-        final DigitalObject retrievedDigitalObject = objectJpaRepository.findByOid(Long.valueOf(oid));
+    public @ResponseBody byte[] getImageWithMediaType(@RequestParam("fid") String fid) throws IOException {
 
-        if (retrievedDigitalObject == null) {
-            logger.debug("Error - digital object not found:{}", oid);
+        final DigitalFile file = fileJpaRepository.findByFid(Long.valueOf(fid));
+
+        if (file == null) {
+            logger.debug("Error - digital file not found:{}", fid);
         } else {
-            logger.debug(retrievedDigitalObject.toString());
+            logger.debug(file.toString());
         }
 
-        if (retrievedDigitalObject.getFiles() == null) {
-            logger.error("No associated files for oid:{}", oid);
-            return null;
-        }
-
-        final DigitalFile file = retrievedDigitalObject.getFiles().get(0); // TODO there can be more files
-
-        logger.debug("Retrieving:{}", file.getPath());
-
-        final String key = file.getPath().replace(serviceConfig.getBaseurl(), "");
-
-        logger.debug("Key:{}", key);
-
-        final String path = storage.getInstance().getObject(key);
+        final String path = storage.getInstance().getObject(file.getPath());
 
         logger.debug("Obtaining file from local area:{}", path);
 

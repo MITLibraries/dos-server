@@ -118,9 +118,9 @@ public class ObjectService {
     public String update(@RequestParam("oid") String oidStr,
                          @RequestParam(value = "handle", required = false) String handle,
                          @RequestParam(value = "title", required = false) String title,
-                         @RequestParam(value = "target_links", required = false) List<String> targetLinks,
                          @RequestParam(value = "content_source", required = false) String contentSource,
-                         @RequestParam(value = "metadata_source", required = false) String metadataSystem) {
+                         @RequestParam(value = "metadata_source", required = false) String metadataSystem,
+                         @RequestParam(value = "file", required = false) MultipartFile target) {
 
         logger.debug("Updating for object id:{}", oidStr);
 
@@ -154,7 +154,7 @@ public class ObjectService {
             return "Invalid attribute (metadata) supplied for PATCH";
         }
 
-        if (!targetLinks.isEmpty()) {
+        if (!target.isEmpty()) {
             List<DigitalFile> empty = new ArrayList<>();
             object.setFiles(empty);
         }
@@ -166,34 +166,34 @@ public class ObjectService {
             return "fail"; // todo change to status code
         }
 
-        final List<DigitalFile> files = fileJpaRepository.findByOid(oid);
+        final List<DigitalFile> files = object.getFiles();
 
         logger.debug("Existing files:{}", files, "for oid:{}", oid);
-
-        try {
-            fileJpaRepository.deleteByOid(oid);
-        } catch (Exception e) {
-            logger.error("Error deleting files for oid:{}", oid);
-            return "fail"; //TODO
+        for (DigitalFile file : files) {
+            final long fid = file.getFid();
+            logger.debug(String.valueOf(fid));
+            try {
+                fileJpaRepository.deleteByFid(fid);
+            } catch (Exception e) {
+                logger.error("Error deleting files for oid:{}", fid);
+                return "fail"; //TODO
+            }
         }
 
-        logger.debug("Deleted Files. Current files:{}", fileJpaRepository.findByOid(oid));
+        logger.debug("Deleted Files. Current files:{}", fileJpaRepository.findByFid(oid));
 
         // first copy the files, then copy the files to storage -- kind of like a block chain effect
 
         final Map<String, File> map =new HashMap<>();
+        final String key = identifierFactory.getInstance().generate(); // + File.separator + item;
 
-        for (final String s : targetLinks) {
-            try {
-                final File f = FileConverter.toFile(s);
-                final String key = object.getHandle(); // + "/" + item;
-                map.put(key, f);
-            } catch (IOException e) {
-                logger.error("Error downloading files:{}", e);
-                return "error"; // todo
-            }
+        try {
+            final File file = File.createTempFile("dos-", "-ingest");
+            FileUtils.copyInputStreamToFile(target.getInputStream(), file);
+            map.put(key, file);
+        } catch (IOException e) {
+            logger.error("Error creating file:{}", e);
         }
-
 
         try {
             final List<String> results = persistToStorage(map);

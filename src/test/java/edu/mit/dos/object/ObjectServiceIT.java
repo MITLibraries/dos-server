@@ -4,6 +4,7 @@ import edu.mit.dos.model.DigitalObject;
 import edu.mit.dos.model.Role;
 import edu.mit.dos.model.User;
 import edu.mit.dos.service.UserService;
+import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
 import org.junit.Before;
@@ -28,8 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.assertj.core.api.Java6Assertions.fail;
+import static org.assertj.core.api.Java6Assertions.*;
 
 
 /**
@@ -159,14 +159,18 @@ public class ObjectServiceIT {
 
         // now update it:
 
-        final MultiValueMap<String, String> updatedMap = new LinkedMultiValueMap<>();
+        final MultiValueMap<String, Object> updatedMap = new LinkedMultiValueMap<>();
         updatedMap.add("oid", oid); // the object id to update
         updatedMap.add("handle", "test.update.hdl.net");
         updatedMap.add("title", "Item Title Updated");
         updatedMap.add("metadata_source", "dome");
         updatedMap.add("content_source", "archivesspace");
-        updatedMap.add("target_links", "https://dome.mit.edu/bitstream/handle/1721.3/21882/112045_sv.jpg?sequence=2");
-        final HttpEntity<MultiValueMap<String, String>> updateRequest = new HttpEntity<>(updatedMap, new HttpHeaders());
+        try {
+            updatedMap.add("file", getTestFile());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        final HttpEntity<MultiValueMap<String, Object>> updateRequest = new HttpEntity<>(updatedMap, new HttpHeaders());
         final String body2 = this.restTemplate.patchForObject("/object", updateRequest, String.class);
         assertThat(body2).isNotNull();
         final DigitalObject body3 = this.restTemplate.getForObject("/object?oid=" + oid, DigitalObject.class);
@@ -216,15 +220,15 @@ public class ObjectServiceIT {
         final HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(map, headers);
         final String body = this.restTemplate.postForObject("/object", request, String.class);
         JSONObject object = (JSONObject) JSONValue.parse(body);
-        String oid = object.getAsString("oid");
-        assertThat(oid).isNotNull();
-
+        List<Integer> files = (List<Integer>) object.get("files");
+        assertThat(files).isNotNull();
+        Integer fid = files.get(0);
         headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_PDF));
 
         final HttpEntity<String> entity = new HttpEntity<>(headers);
         final ResponseEntity<byte[]> response = restTemplate.exchange(
-                "/file?oid=" + oid,
+                "/file?fid=" + fid,
                 HttpMethod.GET, entity, byte[].class, "1");
 
         assertThat(response).isNotNull();
