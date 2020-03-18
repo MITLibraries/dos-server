@@ -12,7 +12,7 @@ public class DigitalFile {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "ID")
-    private long oid;
+    private long fid;
 
     @Column(name = "name")
     private String name;
@@ -34,12 +34,12 @@ public class DigitalFile {
 
     }
 
-    public long getOid() {
-        return oid;
+    public long getFid() {
+        return fid;
     }
 
-    public void setOid(long oid) {
-        this.oid = oid;
+    public void setFid(long fid) {
+        this.fid = fid;
     }
 
     public String getName() {
@@ -85,7 +85,7 @@ public class DigitalFile {
     @Override
     public String toString() {
         return "DigitalFile{" +
-                "oid=" + oid +
+                "fid=" + fid +
                 ", name='" + name +
                 ", type=" + type +
                 ", size=" + size +

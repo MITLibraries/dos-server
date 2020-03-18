@@ -4,11 +4,14 @@ import edu.mit.dos.model.DigitalObject;
 import edu.mit.dos.model.Role;
 import edu.mit.dos.model.User;
 import edu.mit.dos.service.UserService;
+import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -28,8 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.assertj.core.api.Java6Assertions.fail;
+import static org.assertj.core.api.Java6Assertions.*;
 
 
 /**
@@ -39,6 +41,8 @@ import static org.assertj.core.api.Java6Assertions.fail;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ComponentScan("edu.mit.dos.persistence, edu.mit.dos.service")
 public class ObjectServiceIT {
+
+    private static final Logger logger = LoggerFactory.getLogger(FileService.class);
 
     private static final String USER_ADMIN = "admin1";
     private static final String USER_PASSWORD = "admin1";
@@ -103,7 +107,7 @@ public class ObjectServiceIT {
         final MultiValueMap<String, Object> map = getRequestParameters2();
         final HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(map, headers);
         final String body = this.restTemplate.postForObject("/object", request, String.class);
-        //System.out.println("Test Results:" + body);
+        //logger.debug("Test Results:" + body);
         assertThat(body).isNotNull();
         JSONObject object = (JSONObject) JSONValue.parse(body);
         String oid = object.getAsString("oid");
@@ -120,7 +124,7 @@ public class ObjectServiceIT {
         final MultiValueMap<String, Object> map = getRequestParameters2();
         final HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(map, headers);
         final String body = this.restTemplate.postForObject("/object", request, String.class);
-        System.out.println("body" + body);
+        logger.debug("body" + body);
 
         final JSONObject object = (JSONObject) JSONValue.parse(body);
         final String oid = object.getAsString("oid");
@@ -159,14 +163,18 @@ public class ObjectServiceIT {
 
         // now update it:
 
-        final MultiValueMap<String, String> updatedMap = new LinkedMultiValueMap<>();
+        final MultiValueMap<String, Object> updatedMap = new LinkedMultiValueMap<>();
         updatedMap.add("oid", oid); // the object id to update
         updatedMap.add("handle", "test.update.hdl.net");
         updatedMap.add("title", "Item Title Updated");
         updatedMap.add("metadata_source", "dome");
         updatedMap.add("content_source", "archivesspace");
-        updatedMap.add("target_links", "https://dome.mit.edu/bitstream/handle/1721.3/21882/112045_sv.jpg?sequence=2");
-        final HttpEntity<MultiValueMap<String, String>> updateRequest = new HttpEntity<>(updatedMap, new HttpHeaders());
+        try {
+            updatedMap.add("file", getTestFile());
+        } catch (IOException e) {
+            logger.debug("Error:{}", e);
+        }
+        final HttpEntity<MultiValueMap<String, Object>> updateRequest = new HttpEntity<>(updatedMap, new HttpHeaders());
         final String body2 = this.restTemplate.patchForObject("/object", updateRequest, String.class);
         assertThat(body2).isNotNull();
         final DigitalObject body3 = this.restTemplate.getForObject("/object?oid=" + oid, DigitalObject.class);
@@ -216,21 +224,21 @@ public class ObjectServiceIT {
         final HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(map, headers);
         final String body = this.restTemplate.postForObject("/object", request, String.class);
         JSONObject object = (JSONObject) JSONValue.parse(body);
-        String oid = object.getAsString("oid");
-        assertThat(oid).isNotNull();
-
+        List<Integer> files = (List<Integer>) object.get("files");
+        assertThat(files).isNotNull();
+        Integer fid = files.get(0);
         headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_PDF));
 
         final HttpEntity<String> entity = new HttpEntity<>(headers);
         final ResponseEntity<byte[]> response = restTemplate.exchange(
-                "/file?oid=" + oid,
+                "/file?fid=" + fid,
                 HttpMethod.GET, entity, byte[].class, "1");
 
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode().is2xxSuccessful());
 
-        // System.out.println("Response:" + response);
+        // logger.debug("Response:" + response);
 
         if (response.getBody() != null) { // TODO remove this when the logic in LocalFileSystemImpl is added
             assertThat(response.getHeaders().get("Content-Type").get(0).equals("application/pdf")); // TODO change and tie it to the file when we externalize
@@ -267,7 +275,7 @@ public class ObjectServiceIT {
 
     public static Resource getTestFile() throws IOException {
         Path testFile = Files.createTempFile("test-file", ".txt");
-        System.out.println("Creating and Uploading Test File: " + testFile);
+        logger.debug("Creating and Uploading Test File: " + testFile);
         Files.write(testFile, "Hello World !!, This is a test file.".getBytes());
         return new FileSystemResource(testFile.toFile());
     }

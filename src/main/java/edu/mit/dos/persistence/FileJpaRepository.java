@@ -8,8 +8,8 @@ import java.util.List;
 
 public interface FileJpaRepository extends JpaRepository<DigitalFile, Integer> {
 
-    List<DigitalFile> findByOid(long oid);
+    DigitalFile findByFid(long fid);
 
-    void deleteByOid(long oid);
+    void deleteByFid(long fid);
 
 }

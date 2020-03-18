@@ -30,7 +30,7 @@ public class FileIT {
         DigitalFile f = entityManager.persist(file);
         entityManager.flush();
 
-        DigitalFile file1= fileJpaRepository.findByOid(f.getOid()).get(0);
+        DigitalFile file1= fileJpaRepository.findByFid(f.getFid());
         assertThat(file.getChecksum().equalsIgnoreCase(file1.getChecksum()));
     }
 }

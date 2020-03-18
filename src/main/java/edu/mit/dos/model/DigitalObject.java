@@ -136,11 +136,12 @@ public class DigitalObject {
     public String postResponse() {
         JSONObject response = new JSONObject();
         response.put("oid", oid);
-        StringJoiner paths = new StringJoiner(",", "[", "]");
-        for (DigitalFile file : files){
-            String path = file.getPath();
-            paths.add("\"" + path + "\"");}
-        response.put("files", paths);
+        List<Long> fids = new ArrayList<>();
+        for (DigitalFile file : files) {
+            long fid = file.getFid();
+            fids.add(fid);
+        }
+        response.put("files", fids);
         return response.toJSONString();
     }
 }
