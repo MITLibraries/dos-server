@@ -41,7 +41,7 @@ public class FileService {
     /**
      * Retrieves files by fid
      *
-     * @param fid
+     * @param fid the id of the Digital File that is used for retrieving it
      * @return
      * @throws IOException
      */

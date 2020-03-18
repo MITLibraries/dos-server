@@ -136,7 +136,7 @@ public class DigitalObject {
     public String postResponse() {
         JSONObject response = new JSONObject();
         response.put("oid", oid);
-        List<Number> fids = new ArrayList<>();
+        List<Long> fids = new ArrayList<>();
         for (DigitalFile file : files) {
             long fid = file.getFid();
             fids.add(fid);
