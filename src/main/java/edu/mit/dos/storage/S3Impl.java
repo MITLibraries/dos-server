@@ -60,7 +60,9 @@ public class S3Impl implements StorageManager {
     }
 
     @Override
-    public String getObject(final String key) {
+    public String getObject( String key) {
+        key = key.replace(serviceConfig.getBaseurl(), "");
+        logger.debug("Retrieving binary from S3:{}", key);
         final S3Object obj = util.getObject(serviceConfig.getBucket(), key);
         final S3ObjectInputStream inputStream = obj.getObjectContent();
 
