@@ -116,10 +116,12 @@ public class ObjectService {
 
     @RequestMapping(value = "/object", method = RequestMethod.PATCH)
     public String update(@RequestParam("oid") String oidStr,
-                         @RequestParam(value = "handle", required = false) String handle,
-                         @RequestParam(value = "title", required = false) String title,
-                         @RequestParam(value = "content_source", required = false) String contentSource,
-                         @RequestParam(value = "metadata_source", required = false) String metadataSystem,
+                         @RequestParam(value = "handle", required = false, defaultValue = "") String handle,
+                         @RequestParam(value = "title", required = false, defaultValue = "") String title,
+                         @RequestParam(value = "content_source", required = false,
+                                 defaultValue = "") String contentSource,
+                         @RequestParam(value = "metadata_source", required = false,
+                                 defaultValue = "") String metadataSystem,
                          @RequestParam(value = "file", required = false) MultipartFile target) {
 
         logger.debug("Updating for object id:{}", oidStr);
@@ -127,34 +129,25 @@ public class ObjectService {
         long oid = Long.parseLong(oidStr);
 
         DigitalObject object = objectJpaRepository.findByOid(oid);
-
         if (!handle.isEmpty()) {
             object.setHandle(handle);
-        } else {
-            return "Invalid attribute (handle) supplied for PATCH";
         }
 
         if (!title.isEmpty()) {
             object.setTitle(title);
-        } else {
-            return "Invalid attribute (title) supplied for PATCH";
         }
 
         object.setDateUpdated(new Date());
 
         if (!contentSource.isEmpty()) { //tbd can do validation here. if so move to signature with the annotation
             object.setContentSource(contentSource);
-        } else {
-            return "Invalid attribute (source) supplied for PATCH";
         }
 
         if (!metadataSystem.isEmpty()) {
             object.setMetadataSource(metadataSystem);
-        } else {
-            return "Invalid attribute (metadata) supplied for PATCH";
         }
 
-        if (!target.isEmpty()) {
+        if (target != null && !target.isEmpty()) {
             List<DigitalFile> empty = new ArrayList<>();
             object.setFiles(empty);
         }
@@ -174,13 +167,14 @@ public class ObjectService {
             logger.debug(String.valueOf(fid));
             try {
                 fileJpaRepository.deleteByFid(fid);
+                logger.debug("Deleted File. Current file:{}", fid);
             } catch (Exception e) {
-                logger.error("Error deleting files for oid:{}", fid);
+                logger.error("Error deleting file for fid:{}", fid);
                 return "fail"; //TODO
             }
         }
 
-        logger.debug("Deleted Files. Current files:{}", fileJpaRepository.findByFid(oid));
+
 
         // first copy the files, then copy the files to storage -- kind of like a block chain effect
 
