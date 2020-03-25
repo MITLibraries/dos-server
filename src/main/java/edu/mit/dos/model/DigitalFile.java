@@ -29,6 +29,8 @@ public class DigitalFile {
     @Column(name = "path")
     private String path;
 
+    @Column(name ="oid")
+    private long oid;
 
     public DigitalFile() {
 
@@ -82,15 +84,24 @@ public class DigitalFile {
         this.path = path;
     }
 
+    public long getOid() {
+        return oid;
+    }
+
+    public void setOid(long oid) {
+        this.oid = oid;
+    }
+
     @Override
     public String toString() {
         return "DigitalFile{" +
                 "fid=" + fid +
-                ", name='" + name +
-                ", type=" + type +
+                ", name='" + name + '\'' +
+                ", type='" + type + '\'' +
                 ", size=" + size +
-                ", checksum='" + checksum +
-                ", path='" + path +
+                ", checksum='" + checksum + '\'' +
+                ", path='" + path + '\'' +
+                ", oid=" + oid +
                 '}';
     }
 }

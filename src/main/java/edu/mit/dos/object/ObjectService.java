@@ -7,7 +7,6 @@ import edu.mit.dos.persistence.DigitalObjectJpaRepository;
 import edu.mit.dos.persistence.FileJpaRepository;
 import edu.mit.dos.persistence.ObjectFilePersistence;
 import edu.mit.dos.storage.StorageInterfaceFactory;
-import edu.mit.dos.util.FileConverter;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,6 +30,8 @@ import java.util.*;
 public class ObjectService {
 
     private static final Logger logger = LoggerFactory.getLogger(ObjectService.class);
+    public static final String OK = "ok";
+    public static final String FAIL = "fail";
 
     @Autowired
     private DigitalObjectJpaRepository objectJpaRepository;
@@ -68,8 +70,7 @@ public class ObjectService {
         final String key = identifierFactory.getInstance().generate(); // + File.separator + item;
 
         try {
-            final File file = File.createTempFile("dos-", "-ingest");
-            FileUtils.copyInputStreamToFile(target.getInputStream(), file);
+            final File file = persistToTemp(target);
             files.put(key, file);
         } catch (IOException e) {
             logger.error("Error creating file:{}", e);
@@ -81,19 +82,20 @@ public class ObjectService {
             return String.valueOf(p.postResponse());
         } catch (IOException e) {
             logger.error("Error:{}", e);
-            return "fail"; //TODO update
+            return FAIL; //TODO update
         }
     }
 
     @RequestMapping(value = "/object", method = RequestMethod.DELETE)
     public void deleteObject(@RequestParam("oid") String oid) {
         final DigitalObject retrievedDigitalObject = objectJpaRepository.findByOid(Long.valueOf(oid));
-        if (retrievedDigitalObject == null){
+        if (retrievedDigitalObject == null) {
             logger.debug("Error - digital object not found:{}", oid);
+            return;
         }
         objectJpaRepository.delete(retrievedDigitalObject);
         final List<DigitalFile> filesToDelete = retrievedDigitalObject.getFiles();
-        for (DigitalFile fileToDelete : filesToDelete){
+        for (DigitalFile fileToDelete : filesToDelete) {
             storage.getInstance().deleteObject(fileToDelete.getPath());
             logger.debug("File deleted :{}", fileToDelete.getPath());
         }
@@ -105,9 +107,10 @@ public class ObjectService {
     public @ResponseBody
     DigitalObject getObject(@RequestParam("oid") String oid) {
         logger.debug("Finding oid:{}", oid);
-        final DigitalObject retrievedDigitalObject = objectJpaRepository.findByOid(Long.valueOf(oid));
+        final DigitalObject retrievedDigitalObject = objectJpaRepository.findByOid(Long.parseLong(oid));
         if (retrievedDigitalObject == null) {
             logger.debug("Error - digital object not found:{}", oid);
+            return new DigitalObject(); // todo replace with status code
         }
         logger.debug(retrievedDigitalObject.toString());
         return retrievedDigitalObject;
@@ -116,11 +119,11 @@ public class ObjectService {
 
     @RequestMapping(value = "/object", method = RequestMethod.PATCH)
     public String update(@RequestParam("oid") String oidStr,
-                         @RequestParam(value = "handle", required = false) String handle,
-                         @RequestParam(value = "title", required = false) String title,
-                         @RequestParam(value = "content_source", required = false) String contentSource,
-                         @RequestParam(value = "metadata_source", required = false) String metadataSystem,
-                         @RequestParam(value = "file", required = false) MultipartFile target) {
+                         @RequestParam(value = "handle", required = false, defaultValue = "") String handle,
+                         @RequestParam(value = "title", required = false, defaultValue = "") String title,
+                         @RequestParam(value = "content_source", required = false, defaultValue = "") String contentSource,
+                         @RequestParam(value = "metadata_source", required = false, defaultValue = "") String metadataSystem,
+                         @RequestParam(value = "file", required = false) MultipartFile targetFile) {
 
         logger.debug("Updating for object id:{}", oidStr);
 
@@ -128,93 +131,88 @@ public class ObjectService {
 
         DigitalObject object = objectJpaRepository.findByOid(oid);
 
-        if (!handle.isEmpty()) {
+        if (!isEmpty(handle)) {
             object.setHandle(handle);
-        } else {
-            return "Invalid attribute (handle) supplied for PATCH";
         }
 
-        if (!title.isEmpty()) {
+        if (!isEmpty(title)) {
             object.setTitle(title);
-        } else {
-            return "Invalid attribute (title) supplied for PATCH";
         }
 
-        object.setDateUpdated(new Date());
-
-        if (!contentSource.isEmpty()) { //tbd can do validation here. if so move to signature with the annotation
+        if (!isEmpty(contentSource)) {
             object.setContentSource(contentSource);
-        } else {
-            return "Invalid attribute (source) supplied for PATCH";
         }
 
-        if (!metadataSystem.isEmpty()) {
+        if (!isEmpty(metadataSystem)) {
             object.setMetadataSource(metadataSystem);
-        } else {
-            return "Invalid attribute (metadata) supplied for PATCH";
         }
 
-        if (!target.isEmpty()) {
-            List<DigitalFile> empty = new ArrayList<>();
-            object.setFiles(empty);
-        }
+        // if no file was file, that's fine - just save the updated object
 
-        try {
-            object = objectJpaRepository.save(object);
-        } catch (Exception e) {
-            logger.error("Error updating object:", e);
-            return "fail"; // todo change to status code
-        }
-
-        final List<DigitalFile> files = object.getFiles();
-
-        logger.debug("Existing files:{}", files, "for oid:{}", oid);
-        for (DigitalFile file : files) {
-            final long fid = file.getFid();
-            logger.debug(String.valueOf(fid));
+        if (targetFile == null || targetFile.isEmpty()) {
+            logger.debug("No file supplied for updating oid:{}", oid);
             try {
-                fileJpaRepository.deleteByFid(fid);
+                object.setDateUpdated(new Date());
+                object = objectJpaRepository.save(object);
+                logger.debug("Saved object:{}", object);
+                return OK;
             } catch (Exception e) {
-                logger.error("Error deleting files for oid:{}", fid);
-                return "fail"; //TODO
+                logger.error("Error updating object:", e);
+                return FAIL;
             }
         }
 
-        logger.debug("Deleted Files. Current files:{}", fileJpaRepository.findByFid(oid));
+        // if a file was supplied, associate the file with the object
 
-        // first copy the files, then copy the files to storage -- kind of like a block chain effect
-
-        final Map<String, File> map =new HashMap<>();
-        final String key = identifierFactory.getInstance().generate(); // + File.separator + item;
+        final String key = identifierFactory.getInstance().generate();
 
         try {
-            final File file = File.createTempFile("dos-", "-ingest");
-            FileUtils.copyInputStreamToFile(target.getInputStream(), file);
-            map.put(key, file);
-        } catch (IOException e) {
-            logger.error("Error creating file:{}", e);
-        }
 
-        try {
-            final List<String> results = persistToStorage(map);
+            // copy the file locally
 
-            // Update the database:
+            final File file = persistToTemp(targetFile);
+
+            final Map<String, File> fileMap = new HashMap<>();
+
+            fileMap.put(key, file);
+
+            // delete existing associated files:
+
+            logger.debug("Object id:{} has associated files, which will be deleted:{} ", oid, object.getFiles());
+
+            List<DigitalFile> initFiles = new ArrayList<>();
+            object.setFiles(initFiles);
+            objectJpaRepository.save(object);
+
+            logger.debug("Object id:{} files:{} ", oid, object.getFiles());
+
+            // persist new file to permanent storage (local or s3):
+
+            final List<String> results = persistToStorage(fileMap);
+
+            // Finally update the database:
+
             final DigitalObject p = objectFilePersistence.save(results, object);
-
             logger.debug("Updated entity:{}", p);
-
-            return "ok"; // todo
+            return OK;
         } catch (IOException e) {
             logger.error("Error:", e);
-            return "fail";
+            return FAIL;
         }
+
+    }
+
+    private File persistToTemp(@RequestParam(value = "file", required = false) MultipartFile target) throws IOException {
+        final File file = File.createTempFile("dos-", "-ingest");
+        FileUtils.copyInputStreamToFile(target.getInputStream(), file);
+        return file;
     }
 
     private List<String> persistToStorage(final Map<String, File> map) throws IOException {
 
         final List<String> results = new ArrayList<>();
 
-        for (final Map.Entry<String,File> entry : map.entrySet()) {
+        for (final Map.Entry<String, File> entry : map.entrySet()) {
             final String path = entry.getKey();
             final File f = entry.getValue();
 

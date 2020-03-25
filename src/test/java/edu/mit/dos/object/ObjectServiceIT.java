@@ -183,6 +183,33 @@ public class ObjectServiceIT {
     }
 
     @Test
+    public void testPatchNoFile() {
+        // first post the object:
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        final MultiValueMap<String, Object> map = getRequestParameters2();
+        final HttpEntity    <MultiValueMap<String, Object>> request = new HttpEntity<>(map, headers);
+        final String body = this.restTemplate.postForObject("/object", request, String.class);
+        JSONObject object = (JSONObject) JSONValue.parse(body);
+        String oid = object.getAsString("oid");
+        assertThat(oid).isNotNull();
+
+        // now update it:
+
+        final MultiValueMap<String, Object> updatedMap = new LinkedMultiValueMap<>();
+        updatedMap.add("oid", oid); // the object id to update
+        updatedMap.add("title", "Item Title Updated");
+
+        final HttpEntity<MultiValueMap<String, Object>> updateRequest = new HttpEntity<>(updatedMap, new HttpHeaders());
+        final String body2 = this.restTemplate.patchForObject("/object", updateRequest, String.class);
+        assertThat(body2).isNotNull();
+        final DigitalObject body3 = this.restTemplate.getForObject("/object?oid=" + oid, DigitalObject.class);
+        assertThat(body3.getTitle()).isEqualTo("Item Title Updated");
+    }
+
+    @Test
     public void testPatchUnsucessful() {
         // first post the object:
 
