@@ -6,7 +6,6 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.StringJoiner;
 
 /**
  * Representation of a digital object
@@ -39,7 +38,7 @@ public class DigitalObject {
     @Column(name = "content_source")
     private String contentSource;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     private List<DigitalFile> files =new ArrayList<>();
 
     public DigitalObject() {
@@ -134,10 +133,10 @@ public class DigitalObject {
     }
 
     public String postResponse() {
-        JSONObject response = new JSONObject();
+        final JSONObject response = new JSONObject();
         response.put("oid", oid);
-        List<Long> fids = new ArrayList<>();
-        for (DigitalFile file : files) {
+        final List<Long> fids = new ArrayList<>();
+        for (final DigitalFile file : files) {
             long fid = file.getFid();
             fids.add(fid);
         }

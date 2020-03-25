@@ -28,6 +28,7 @@ public class ObjectFilePersistenceImpl implements ObjectFilePersistence {
         for (final String result: storagePaths) {
             final DigitalFile digitalFile = new DigitalFile();
             digitalFile.setPath(result);
+            digitalFile.setOid(object.getOid());
             fileJpaRepository.save(digitalFile);
             object.getFiles().add(digitalFile);
         }
