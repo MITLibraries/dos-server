@@ -5,10 +5,8 @@ import edu.mit.dos.model.DigitalFile;
 import edu.mit.dos.model.DigitalObject;
 import edu.mit.dos.object.IdentifierFactory;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -16,6 +14,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+@ComponentScan({"edu.mit.dos, edu.mit.dos.object"})
 @Service
 public class ObjectFilePersistenceImpl implements ObjectFilePersistence {
 
@@ -34,12 +34,9 @@ public class ObjectFilePersistenceImpl implements ObjectFilePersistence {
     @Autowired
     private FileJpaRepository fileJpaRepository;
 
-    @Autowired
     private IdentifierFactory identifierFactory;
 
-    @Autowired
     private ServiceConfig serviceConfig;
-
 
     @Transactional
     public DigitalObject save(final List<String> storagePaths, final DigitalObject object) {
@@ -91,4 +88,13 @@ public class ObjectFilePersistenceImpl implements ObjectFilePersistence {
         return target;
     }
 
+    @Autowired
+    public void setIdentifierFactory(IdentifierFactory identifierFactory) {
+        this.identifierFactory = identifierFactory;
+    }
+
+    @Autowired
+    public void setServiceConfig(ServiceConfig serviceConfig) {
+        this.serviceConfig = serviceConfig;
+    }
 }
