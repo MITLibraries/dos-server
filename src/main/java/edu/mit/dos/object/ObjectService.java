@@ -81,7 +81,7 @@ public class ObjectService {
             final DigitalObject p = objectFilePersistence.save(storagePaths, object);
             return String.valueOf(p.postResponse());
         } catch (IOException e) {
-            logger.error("Error:{}", e);
+            logger.error("Error:", e);
             return FAIL; //TODO update
         }
     }

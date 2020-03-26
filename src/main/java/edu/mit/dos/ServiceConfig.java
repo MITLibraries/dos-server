@@ -35,6 +35,9 @@ public class ServiceConfig {
     @NotNull
     private String clientPassword;
 
+    @NotNull
+    private String handleServer;
+
     public String getBucket() {
         return bucket;
     }
@@ -89,5 +92,13 @@ public class ServiceConfig {
 
     public void setClientPassword(String clientPassword) {
         this.clientPassword = clientPassword;
+    }
+
+    public String getHandleServer() {
+        return handleServer;
+    }
+
+    public void setHandleServer(String handleServer) {
+        this.handleServer = handleServer;
     }
 }

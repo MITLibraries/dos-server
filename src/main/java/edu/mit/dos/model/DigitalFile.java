@@ -32,6 +32,9 @@ public class DigitalFile {
     @Column(name ="oid")
     private long oid;
 
+    @Column(name = "handle")
+    private String handle;
+
     public DigitalFile() {
 
     }
@@ -92,6 +95,14 @@ public class DigitalFile {
         this.oid = oid;
     }
 
+    public String getHandle() {
+        return handle;
+    }
+
+    public void setHandle(String handle) {
+        this.handle = handle;
+    }
+
     @Override
     public String toString() {
         return "DigitalFile{" +
@@ -102,6 +113,7 @@ public class DigitalFile {
                 ", checksum='" + checksum + '\'' +
                 ", path='" + path + '\'' +
                 ", oid=" + oid +
+                ", handle='" + handle + '\'' +
                 '}';
     }
 }
