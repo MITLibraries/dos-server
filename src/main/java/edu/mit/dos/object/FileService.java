@@ -48,10 +48,11 @@ public class FileService {
     @GetMapping(value = "/file", produces = MediaType.APPLICATION_PDF_VALUE)
     public @ResponseBody byte[] getImageWithMediaType(@RequestParam("fid") String fid) throws IOException {
 
-        final DigitalFile file = fileJpaRepository.findByFid(Long.valueOf(fid));
+        final DigitalFile file = fileJpaRepository.findByFid(Long.parseLong(fid));
 
         if (file == null) {
             logger.debug("Error - digital file not found:{}", fid);
+            return null;
         } else {
             logger.debug(file.toString());
         }
