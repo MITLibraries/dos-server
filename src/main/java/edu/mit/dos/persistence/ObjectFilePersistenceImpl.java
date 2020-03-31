@@ -4,6 +4,9 @@ import edu.mit.dos.ServiceConfig;
 import edu.mit.dos.model.DigitalFile;
 import edu.mit.dos.model.DigitalObject;
 import edu.mit.dos.object.IdentifierFactory;
+import net.handle.hdllib.CreateHandleRequest;
+import net.handle.hdllib.HandleException;
+import net.handle.hdllib.HandleValue;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -19,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
