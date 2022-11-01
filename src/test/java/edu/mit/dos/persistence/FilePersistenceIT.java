@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @DataJpaTest
 @ComponentScan("edu.mit.dos.persistence")
-public class FileIT {
+public class FilePersistenceIT {
 
     @Autowired
     private TestEntityManager entityManager;

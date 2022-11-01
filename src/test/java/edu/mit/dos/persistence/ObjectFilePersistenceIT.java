@@ -39,5 +39,6 @@ public class ObjectFilePersistenceIT {
         final DigitalObject digitalObject1 = persistence.save(paths, digitalObject);
         assertThat(digitalObject1.getFiles().get(0).getPath().equalsIgnoreCase("/tmp/test"));
         assertThat(digitalObject1.getTitle().equalsIgnoreCase("Test"));
+        assertThat(digitalObject1.getFiles().get(0).getHandle().equalsIgnoreCase(paths.get(0)));
     }
 }
